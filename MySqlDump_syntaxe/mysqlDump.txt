@@ -1,0 +1,2 @@
+PS C:\Program Files\MySQL\MySQL Server 8.0\bin> mysqldump -u root -p e_commerce > c:\db\e_commerce.sql
+Enter password: *********
