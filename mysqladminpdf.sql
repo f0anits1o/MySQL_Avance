@@ -1518,7 +1518,32 @@ SELECT id, sexe, date_naissance, nom, espece_id, mere_id, pere_id
 FROM Animal
 WHERE espece_id = 5;
 
+-- ---------------------------------------
+-- ACID : Acide Coherence Isolation Durabilite
+-- ---------------------------------------
+
+START TRANSACTION; -- On ouvre une transaction
+
+UPDATE Animal -- On modifie Bibo
+SET pere_id = 73
+WHERE espece_id = 5 AND nom = 'Bibo';
 
 
+SELECT id, nom, commentaires, pere_id, mere_id
+FROM Animal
+WHERE espece_id = 5;
 
+START TRANSACTION; -- On ouvre une transaction
+
+SELECT id, nom, commentaires, pere_id, mere_id
+FROM Animal
+WHERE espece_id = 5;
+
+UPDATE Animal -- On modifie la perruche Bibo
+SET commentaires = 'Agressif'
+WHERE espece_id = 5 AND nom = 'Bibo';
+
+SELECT id, nom, commentaires, pere_id, mere_id
+FROM Animal
+WHERE espece_id = 5;
 
