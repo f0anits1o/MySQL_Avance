@@ -1183,3 +1183,66 @@ SELECT Animal.nom, Animal.race_id, Race.nom as race FROM Animal
 LEFT JOIN Race ON Animal.race_id = Race.id
 ORDER BY race;
 
+-- Option sur modification des clés étrangères --
+-------------------------------------------------
+UPDATE Race SET id = 3 WHERE nom = 'Singapura';
+
+--  Petite explication à propos de CASCADE
+
+-- Suppression de la clé --
+-- ------------------------
+ALTER TABLE Animal DROP FOREIGN KEY fk_race_id;
+-- Recréation de la clé avec les bonnes options --
+-- -----------------------------------------------
+ALTER TABLE Animal
+ADD CONSTRAINT fk_race_id FOREIGN KEY (race_id) REFERENCES Race(id)
+ON DELETE SET NULL -- N'oublions pas de remettre le ON DELETE!
+ON UPDATE CASCADE;
+
+-- Modification de l'id des Singapura --
+-- -------------------------------------
+UPDATE Race SET id = 3 WHERE nom = 'Singapura';
+
+ALTER TABLE Animal DROP FOREIGN KEY fk_race_id;
+
+ALTER TABLE Animal
+ADD CONSTRAINT fk_race_id FOREIGN KEY (race_id) REFERENCES Race(id)
+ON DELETE SET NULL;
+
+-- exercice
+-- Animal.mere_id --
+-- -----------------
+ALTER TABLE Animal DROP FOREIGN KEY fk_mere_id;
+
+ALTER TABLE Animal
+ADD CONSTRAINT fk_mere_id FOREIGN KEY (mere_id) REFERENCES
+Animal(id) ON DELETE SET NULL;
+
+-- Animal.pere_id --
+-- -----------------
+ALTER TABLE Animal DROP FOREIGN KEY fk_pere_id;
+
+ALTER TABLE Animal
+ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES
+Animal(id) ON DELETE SET NULL;
+
+-- Race.espece_id --
+-- -----------------
+ALTER TABLE Race DROP FOREIGN KEY fk_race_espece_id;
+
+ALTER TABLE Race
+ADD CONSTRAINT fk_race_espece_id FOREIGN KEY (espece_id) REFERENCES
+Espece(id) ON DELETE CASCADE;
+
+
+--  Violation de contrainte d’unicité --
+----------------------------------------
+
+--  INsertion => demonstration
+INSERT INTO Espece (nom_courant, nom_latin, description)
+VALUES ('Chien en peluche', 'Canis canis', 'Tout doux, propre et silencieux');
+
+-- Par contre, si l’on utilise le mot-clé IGNORE
+INSERT IGNORE INTO Espece (nom_courant, nom_latin, description)
+VALUES ('Chien en peluche', 'Canis canis', 'Tout doux, propre et silencieux');
+
