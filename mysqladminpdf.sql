@@ -1058,3 +1058,42 @@ UNION
 SELECT ...
 
 -- fin Syntaxe
+
+-- -- Les règles: Nombre de colonnes (diso io code eo ambany satria tsy nanaraka regle)
+-- Pas le même nombre de colonnes 
+
+SELECT Animal.id, Animal.nom, Espece.nom_courant
+-- 3 colonnes sélectionnées
+FROM Animal
+INNER JOIN Espece ON Animal.espece_id = Espece.id
+WHERE Espece.nom_courant = 'Chat'
+UNION
+SELECT Animal.id, Animal.nom, Espece.nom_courant, Animal.espece_id
+-- 4 colonnes sélectionnées
+FROM Animal
+INNER JOIN Espece ON Animal.espece_id = Espece.id
+WHERE Espece.nom_courant = 'Tortue d''Hermann';
+
+-- --  Les règles: Type et ordre des colonnes => jereo tsara io colonne 3 io
+SELECT Animal.id, Animal.nom, Espece.nom_courant -- 3e colonne : nom_courant VARCHAR
+FROM Animal
+INNER JOIN Espece ON Animal.espece_id = Espece.id
+WHERE Espece.nom_courant = 'Chat' AND Animal.nom LIKE 'C%'
+UNION
+SELECT Animal.id, Animal.nom, Espece.id -- 3e colonne :id SMALLINT
+FROM Animal
+INNER JOIN Espece ON Animal.espece_id = Espece.id
+WHERE Espece.nom_courant = 'Tortue d''Hermann' AND Animal.nom LIKE
+'C%';
+
+-- jereo ny ordre colonne
+SELECT Animal.id, Animal.nom, Espece.nom_courant FROM Animal
+INNER JOIN Espece ON Animal.espece_id = Espece.id
+WHERE Espece.nom_courant = 'Chat' AND Animal.nom LIKE 'C%'
+UNION
+SELECT Animal.nom, Animal.id, Espece.nom_courant FROM Animal 
+-- 1e et 2e colonnes inversées par rapport à la première requête
+INNER JOIN Espece ON Animal.espece_id = Espece.id
+WHERE Espece.nom_courant = 'Tortue d''Hermann' AND Animal.nom LIKE
+'C%';
+
