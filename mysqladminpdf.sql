@@ -1026,4 +1026,16 @@ WHERE Animal.commentaires IS NULL
 AND Espece.nom_courant IN ('Perroquet amazone', 'Tortue d''Hermann'); 
 -- Et seulement pour les perroquets et les tortues.
 
+-- -- Suppression: Utilisation des sous-requêtes
+DELETE FROM Animal WHERE nom = 'Carabistouille';
 
+DELETE FROM Animal
+    WHERE nom = 'Carabistouille' AND espece_id =
+        (SELECT id FROM Espece WHERE nom_courant = 'Chat');
+
+
+-- --  Suppression avec jointure
+DELETE Animal -- Je précise de quelles tables les données doivent être supprimées
+FROM Animal -- Table principale
+INNER JOIN Espece ON Animal.espece_id = Espece.id -- Jointure
+WHERE Animal.nom = 'Carabistouille' AND Espece.nom_courant = 'Chat';
