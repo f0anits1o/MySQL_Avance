@@ -983,11 +983,11 @@ SELECT * FROM Race WHERE NOT EXISTS (SELECT * FROM Animal WHERE Animal.race_id =
 --  Insertion
 -- -- Sous-requête pour l’insertion
 INSERT INTO Animal (nom, sexe, date_naissance, race_id, espece_id) 
--- Je précise les colonnes puisque je ne donne pas une valeur pour toutes.
+-- -- -- Je précise les colonnes puisque je ne donne pas une valeur pour toutes.
 SELECT 'Yoda', 'M', '2010-11-09', id AS race_id, espece_id -- Attention à l'ordre !
 FROM Race WHERE nom = 'Maine coon';
 
--- verification insertion
+-- -- -- verification insertion
 SELECT Animal.id, Animal.sexe, Animal.nom, Race.nom AS race,
 Espece.nom_courant as espece
 FROM Animal
@@ -995,4 +995,20 @@ INNER JOIN Race ON Animal.race_id = Race.id
 INNER JOIN Espece ON Race.espece_id = Espece.id
 WHERE Race.nom = 'Maine coon';
 
+
+-- -- Modification: utilisation sous requette
+UPDATE Animal SET commentaires = 'Coco veut un gâteau' WHERE espece_id = 4;
+
+UPDATE Animal SET commentaires = 'Coco veut un gâteau !' WHERE
+espece_id = (SELECT id FROM Espece WHERE nom_courant LIKE 'Perroquet%');
+
+-- --  Pour l’élément à modifier
+INSERT INTO Race (nom, espece_id, description) VALUES ('Nebelung', 2,
+'Chat bleu russe, mais avec des poils longs...');
+
+-- -- -- misy diso io code eo ambany io
+UPDATE Animal SET race_id = (SELECT id FROM Race WHERE nom = 'Nebelung' AND espece_id = 2) WHERE nom = 'Cawette';
+
+SELECT id FROM Race WHERE nom = 'Nebelung' AND espece_id = 2;
+select * from animal where race_id in (8, 9);
 
