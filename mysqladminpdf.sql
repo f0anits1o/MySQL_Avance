@@ -1012,3 +1012,18 @@ UPDATE Animal SET race_id = (SELECT id FROM Race WHERE nom = 'Nebelung' AND espe
 SELECT id FROM Race WHERE nom = 'Nebelung' AND espece_id = 2;
 select * from animal where race_id in (8, 9);
 
+-- -- Modification avec jointure
+UPDATE Animal
+-- Classique !
+INNER JOIN Espece
+-- Jointure.
+ON Animal.espece_id = Espece.id
+-- Condition de la jointure.
+SET Animal.commentaires = Espece.description
+-- Ensuite, la modification voulue.
+WHERE Animal.commentaires IS NULL
+-- Seulement s'il n'y a pas encore de commentaire.
+AND Espece.nom_courant IN ('Perroquet amazone', 'Tortue d''Hermann'); 
+-- Et seulement pour les perroquets et les tortues.
+
+
