@@ -1097,3 +1097,17 @@ INNER JOIN Espece ON Animal.espece_id = Espece.id
 WHERE Espece.nom_courant = 'Tortue d''Hermann' AND Animal.nom LIKE
 'C%';
 
+-- -- -- Union ALL
+SELECT * FROM Espece
+UNION
+SELECT * FROM Espece
+
+-- Chaque résultat n’apparaît qu’une seule fois. Pour la simple et bonne raison que lorsque vous
+-- faites UNION, les doublons sont effacés. En fait, UNION est équivalent à UNION DISTINCT. Si
+-- vous voulez conserver les doublons, vous devez utiliser UNION ALL.
+
+SELECT * FROM Espece
+UNION ALL
+SELECT * FROM Espece;
+-- fin union
+
