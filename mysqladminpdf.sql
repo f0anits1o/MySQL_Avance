@@ -1244,5 +1244,15 @@ VALUES ('Chien en peluche', 'Canis canis', 'Tout doux, propre et silencieux');
 
 -- Par contre, si l’on utilise le mot-clé IGNORE
 INSERT IGNORE INTO Espece (nom_courant, nom_latin, description)
-VALUES ('Chien en peluche', 'Canis canis', 'Tout doux, propre et silencieux');
+VALUES ('Chien en peluche', 'C
+anis canis', 'Tout doux, propre et silencieux');
+
+-- Modification => demonstration
+UPDATE Espece SET nom_latin = 'Canis canis' WHERE nom_courant = 'Chat'
+
+UPDATE IGNORE Espece SET nom_latin = 'Canis canis' WHERE nom_courant = 'Chat';
+
+-- mila mianatra miload DATA
+
+
 
