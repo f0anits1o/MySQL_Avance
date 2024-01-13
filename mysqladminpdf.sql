@@ -1109,5 +1109,37 @@ SELECT * FROM Espece
 SELECT * FROM Espece
 UNION ALL
 SELECT * FROM Espece;
--- fin union
+
+
+-- limit and order BY
+SELECT id, nom, 'Race' AS table_origine FROM Race
+UNION
+SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece;
+
+SELECT id, nom, 'Race' AS table_origine FROM Race
+UNION
+SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece LIMIT 2;
+
+SELECT id, nom, 'Race' AS table_origine FROM Race
+UNION
+(SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece LIMIT
+2);
+
+-- -- -- -- ORDER BY
+SELECT id, nom, 'Race' AS table_origine FROM Race
+UNION
+SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece
+ORDER BY nom DESC;
+
+-- -- -- -- --  Exception pour les tris sur les requêtes intermédiaires
+(SELECT id, nom, 'Race' AS table_origine FROM Race LIMIT 6)
+UNION
+(SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece LIMIT
+3);
+
+
+(SELECT id, nom, 'Race' AS table_origine FROM Race ORDER BY nom DESC LIMIT 6)
+UNION
+(SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece LIMIT 3);
+
 
