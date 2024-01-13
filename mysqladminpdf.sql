@@ -955,12 +955,44 @@ WHERE nom_courant IN ('Tortue d''Hermann', 'Perroquet amazone')
 );
 
 --  Sous-requêtes corrélées
+-- Syntaxe
+SELECT colonne1 FROM tableA
+    WHERE colonne2 IN (
+        SELECT colonne3 FROM tableB
+            WHERE tableB.colonne4 = tableA.colonne5
+);
 
 
+--  Conditions avec EXISTS et NOT EXISTS
+-- syntaxe
+SELECT * FROM nom_table WHERE [NOT] EXISTS (sous-requête)
 
+SELECT id, nom, espece_id FROM Race WHERE EXISTS (SELECT * FROM Animal WHERE nom = 'Balou');
 
+--  on sélectionne les races s’il existe un animal qui s’appelle Balou
+SELECT * FROM Animal WHERE nom = 'Balou';
 
+--  je veux sélectionner toutes les races dont on ne possède aucun animal
+SELECT * FROM Race WHERE NOT EXISTS (SELECT * FROM Animal WHERE Animal.race_id = Race.id);
 
+-- ----------------------------------------------------
+-- Jointures et sous-requêtes :
+-- modification de données
+-- ----------------------------------------------------
 
+--  Insertion
+-- -- Sous-requête pour l’insertion
+INSERT INTO Animal (nom, sexe, date_naissance, race_id, espece_id) 
+-- Je précise les colonnes puisque je ne donne pas une valeur pour toutes.
+SELECT 'Yoda', 'M', '2010-11-09', id AS race_id, espece_id -- Attention à l'ordre !
+FROM Race WHERE nom = 'Maine coon';
+
+-- verification insertion
+SELECT Animal.id, Animal.sexe, Animal.nom, Race.nom AS race,
+Espece.nom_courant as espece
+FROM Animal
+INNER JOIN Race ON Animal.race_id = Race.id
+INNER JOIN Espece ON Race.espece_id = Espece.id
+WHERE Race.nom = 'Maine coon';
 
 
