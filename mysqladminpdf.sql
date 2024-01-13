@@ -1142,4 +1142,44 @@ UNION
 UNION
 (SELECT id, nom_latin, 'Espèce' AS table_origine FROM Espece LIMIT 3);
 
+-- -- Option des cles etrangere
+
+-- -- --  Option sur suppression des clés étrangères
+-
+-- Lorsque je vous ai parlé des clés étrangères, et que je vous ai donné la syntaxe pour les créer,
+-- j’ai omis de vous parler des deux options fort utiles :
+
+-- — ON DELETE, qui permet de déterminer le comportement de MySQL en cas de suppression d’une référence ;
+-- — ON UPDATE, qui permet de déterminer le comportement de MySQL en cas de modification d’une référence
+
+-- -- --  Syntaxe
+ALTER TABLE nom_table
+ADD [CONSTRAINT fk_col_ref]
+FOREIGN KEY (colonne)
+REFERENCES table_ref(col_ref)
+ON DELETE {RESTRICT | NO ACTION | SET NULL | CASCADE}; -- <-- Nouvelle option 
+
+-- -- -- fin syntaxe
+
+ALTER TABLE Animal DROP FOREIGN KEY fk_race_id;
+
+ALTER TABLE Animal
+ADD CONSTRAINT fk_race_id FOREIGN KEY (race_id) REFERENCES Race(id)
+ON DELETE SET NULL;
+
+-- Affichons d'abord tous les animaux, avec leur race --
+-- -----------------------------------------------------
+SELECT Animal.nom, Animal.race_id, Race.nom as race FROM Animal
+LEFT JOIN Race ON Animal.race_id = Race.id
+ORDER BY race;
+
+-- Supprimons ensuite la race 'Boxer' --
+-- -------------------------------------
+DELETE FROM Race WHERE nom = 'Boxer';
+
+-- Réaffichons les animaux --
+-- --------------------------
+SELECT Animal.nom, Animal.race_id, Race.nom as race FROM Animal
+LEFT JOIN Race ON Animal.race_id = Race.id
+ORDER BY race;
 
