@@ -1492,6 +1492,31 @@ WHERE espece_id = 5;
 --  Jalon de transaction
 
 -- Syntaxe
+SAVEPOINT nom_jalon; -- Crée un jalon avec comme nom "nom_jalon"
+
+ROLLBACK [WORK] TO [SAVEPOINT] nom_jalon; 
+-- Annule les requêtesexécutées depuis le jalon "nom_jalon", WORK et SAVEPOINT ne sont pas obligatoires
+RELEASE SAVEPOINT nom_jalon; -- Retire le jalon "nom_jalon" (sans annuler, ni valider les requêtes faites depuis
+-- fin syntaxe
+
+START TRANSACTION;
+INSERT INTO Animal (nom, espece_id, date_naissance, sexe)
+VALUES ('Popi', 5, '2007-03-11 12:45:00', 'M');
+
+SAVEPOINT jalon1;
+
+INSERT INTO Animal (nom, espece_id, date_naissance, sexe)
+VALUES ('Momo', 5, '2007-03-12 05:23:00', 'M');
+
+ROLLBACK TO SAVEPOINT jalon1;
+
+INSERT INTO Animal (nom, espece_id, date_naissance, sexe)
+VALUES ('Mimi', 5, '2007-03-12 22:03:00', 'F');
+COMMIT;
+
+SELECT id, sexe, date_naissance, nom, espece_id, mere_id, pere_id
+FROM Animal
+WHERE espece_id = 5;
 
 
 
