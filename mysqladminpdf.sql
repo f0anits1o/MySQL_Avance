@@ -1696,4 +1696,188 @@ INSERT INTO Adoption (client_id, animal_id, date_reservation, date_adoption, pri
 INSERT INTO Adoption (client_id, animal_id, date_reservation, date_adoption, prix, paye) VALUES 
 (2, 3, '2011-03-12', '2011-03-12', 835.00, 1);
 
+--  Syntaxe et utilisation : verrous de table
+LOCK TABLES nom_table [AS alias_table] [READ | WRITE] [, ...];
+
+-- Les verrous de table sont les seuls supportés par MyISAM. Ils sont d’ailleurs principalement
+-- utilisés pour pallier en partie l’absence de transactions dans MyISAM. Les tables InnoDB peuvent
+-- également utiliser ce type de verrou.
+
+UPDATE Adoption AS adopt
+SET paye = 0
+WHERE client_id = 10 AND animal_id = 49;
+
+UNLOCK TABLES; -- On relâche d'abord les deux verrous précédents
+
+LOCK TABLES Adoption READ;
+LOCK TABLES Espece READ, Espece AS table_espece READ;
+
+SELECT id, nom_courant FROM Espece;
+
+SELECT id, nom_courant FROM Espece AS table_espece;
+
+-- Sélection dans Espece, avec mauvais alias.
+SELECT id, nom_courant FROM Espece AS table_esp;
+
+-- Sélection dans Adoption, sans alias.
+SELECT * FROM Adoption;
+
+-- Le verrou sur Adoption a été relâché lorsque l’on a posé les verrous sur Espece. On ne peut donc
+-- pas lire les données d’Adoption (avec ou sans alias).
+
+
+-- Conséquences pour les autres sessions
+-----------------------------------------
+-- 1. Sélection sur des tables verrouillées à partir d’une autre session.
+-- sesion 1:
+LOCK TABLES Client READ, -- Verrou de lecture sur Client
+    Adoption WRITE;
+
+-- sesion 2:
+SELECT id, nom, prenom, ville, email
+FROM Client
+WHERE ville = 'Houtsiplou';
+
+-- La sélection sur Client se fait sans problème.
+
+-- Session 2 :
+SELECT *
+FROM Adoption
+WHERE client_id = 4;
+
+-- 2. Modification sur des tables verrouillées à partir d’une autre session
+-- Reverrouillez les tables avec la session 1 :
+LOCK TABLES Client READ, -- Verrou de lecture sur Client
+    Adoption WRITE; -- Verrou d'écriture sur Adoption
+
+-- sesion 2
+UPDATE Client
+SET pays = 'Suisse'
+WHERE id = 5;
+
+UPDATE Adoption
+SET paye = 1
+WHERE client_id = 3;
+
+-- --------------------------------- --
+-- Interaction avec les transactions --
+---------------------------------------
+SET autocommit = 0;
+LOCK TABLES Adoption WRITE; -- La validation implicite ne commite rien puisque aucun changement n'a été fait
+UPDATE Adoption SET date_adoption = NOW() WHERE client_id = 9 AND
+animal_id = 54;
+
+SELECT client_id, animal_id, date_adoption FROM Adoption WHERE
+client_id = 9;
+
+ROLLBACK;
+
+UNLOCK TABLES; -- On a annulé les changements juste avant donc la validation implicite n'a aucune conséquence
+
+SELECT client_id, animal_id, date_adoption FROM Adoption WHERE
+client_id = 9;
+
+SET autocommit = 1;
+
+-- V.2.3. Syntaxe et utilisation : verrous de ligne
+
+
+-- Ces verrous ne peuvent pas être posés sur une table utilisant le moteur MyISAM ! Tout ce
+-- qui est dit ici concerne les tables InnoDB uniquement.
+
+-- V.2.3.2. Requêtes de sélection
+SELECT * FROM Animal WHERE espece_id = 5 LOCK IN SHARE MODE;
+
+-- V.2.3.2.2. Verrou exclusif
+SELECT * FROM Animal WHERE espece_id = 5 FOR UPDATE;
+
+-- V.2.3.4. Exemples
+-- V.2.3.4.1. Verrou posé par une requête de modification
+
+-- session
+START TRANSACTION;
+
+UPDATE Client SET pays = 'Suisse'
+WHERE id = 8; -- un verrou exclusif sera posé sur la ligne avec id = 8
+
+-- session 2
+START TRANSACTION;
+
+SELECT * FROM Client
+WHERE id = 8; 
+
+SELECT * FROM Client
+WHERE id = 8
+LOCK IN SHARE MODE; -- on essaye de poser un verrou partagé
+desc animal;
+
+-- COMMIT;
+
+START TRANSACTION;
+
+UPDATE Adoption SET paye = 0 WHERE client_id = 11;
+
+START TRANSACTION;
+
+UPDATE Adoption SET paye = 1
+WHERE animal_id = 32; -- l'animal 32 a été adopté par le client 11
+
+-- V.2.3.4.2. Verrou posé par une requête d’insertion
+
+-- Session 1 :
+START TRANSACTION;
+
+INSERT INTO Adoption (client_id, animal_id, date_reservation, prix)
+VALUES (12, 75, NOW(), 10.00); -- misy blem
+
+-- session 2
+SELECT * FROM Adoption
+WHERE client_id > 13
+LOCK IN SHARE MODE; -- misy blem
+
+SELECT * FROM Adoption
+WHERE client_id < 13
+LOCK IN SHARE MODE;
+
+ COMMIT;
+
+-- V.2.3.4.3. Verrou posé par une requête de sélection
+
+-- session 1
+START TRANSACTION;
+SELECT * FROM Client
+WHERE id < 5
+LOCK IN SHARE MODE;
+
+
+-- Session 2 :
+START TRANSACTION;
+
+SELECT * FROM Client
+WHERE id BETWEEN 3 AND 8;
+
+SELECT * FROM Client
+WHERE id BETWEEN 3 AND 8
+LOCK IN SHARE MODE;
+
+SELECT * FROM Client
+WHERE id BETWEEN 3 AND 8
+FOR UPDATE;
+
+-- session 1
+START TRANSACTION;
+
+SELECT * FROM Client
+WHERE id < 5
+FOR UPDATE;
+
+-- session 2
+START TRANSACTION;
+
+SELECT * FROM Client
+WHERE id BETWEEN 3 AND 8;
+
+SELECT * FROM Client
+WHERE id BETWEEN 3 AND 8
+LOCK IN SHARE MODE;
 
