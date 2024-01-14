@@ -2379,7 +2379,18 @@ SELECT id, nom, espece_id, prix FROM Race;
             CALL calculer_prix (75, @prix); -- Achat de Mimi
             SELECT @prix AS total;
 
-            
+    -- V.4.3. Supression d'une PROCEDURE
+            DROP PROCEDURE afficher_races;
+
+    -- v.4.4. Avantages, incovenients et usage des procedures stockees
+    -- ---------------------------------------------------------------
+        
+        -- V.4.4.1. Avantages(lesona be)
+        -- V.4.4.2. Syntaxe  (lesona be)
+        -- V.4.4.3. Exemples (lesona be)
+        -- V.4.4.4. En RESUME (lesona be)
+
+
 
 
 
