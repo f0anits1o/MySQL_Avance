@@ -2286,8 +2286,13 @@ SELECT id, nom, espece_id, prix FROM Race;
 
         CALL afficher_races()| -- le délimiteur est toujours | !!!
 
-        
 
+    -- V.4.2. Les parametres d'une PROCEDURE
+    -- -------------------------------------
+
+        -- V.4.2.1. Sens du parametres (in, out et inout)
+        -- V.4.2.2. Syntaxe (lesona be)
+        -- V.4.2.s. Exemples
 
             
 
