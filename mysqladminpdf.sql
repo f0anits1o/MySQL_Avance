@@ -2292,7 +2292,92 @@ SELECT id, nom, espece_id, prix FROM Race;
 
         -- V.4.2.1. Sens du parametres (in, out et inout)
         -- V.4.2.2. Syntaxe (lesona be)
-        -- V.4.2.s. Exemples
+        -- V.4.2.3. Exemples
+
+        
+        -- V.4.2.3. Exemples
+        -- -----------------
+
+            -- V.4.2.3.1. Procédure avec un seul paramètre entrant
+            -- V.4.2.3.2. Procédure avec deux paramètres, un entrant et un sortant
+            -- V.4.2.3.3. Procédure avec deux paramètres, un entrant et un entrant-sortant
+
+
+            -- V.4.2.3.1. Procédure avec un seul paramètre entrant
+            -- ---------------------------------------------------
+
+                DELIMITER |
+                -- Facultatif si votre délimiteur est toujours |
+
+                CREATE PROCEDURE afficher_race_selon_espece (IN p_espece_id INT)
+                -- Définition du paramètre p_espece_id
+                    BEGIN
+                        SELECT id, nom, espece_id, prix
+                        FROM Race
+                        WHERE espece_id = p_espece_id; -- Utilisation du paramètre
+                    END;
+                DELIMITER ; -- On remet le délimiteur par défaut
+
+
+                CALL afficher_race_selon_espece(1);
+                SET @espece_id := 2;
+                CALL afficher_race_selon_espece(@espece_id);
+
+
+            -- V.4.2.3.2. Procédure avec deux paramètres, un entrant et un sortant
+            -- -------------------------------------------------------------------
+
+                DELIMITER |
+
+                CREATE PROCEDURE compter_races_selon_espece (p_espece_id INT, OUT p_nb_races INT)
+                BEGIN
+                SELECT COUNT(*) INTO p_nb_races
+                FROM Race
+                WHERE espece_id = p_espece_id;
+                END ;
+
+                DELIMITER ;
+
+
+                SELECT id, nom INTO @var1, @var2
+                FROM Animal
+                WHERE id = 7;
+
+                SELECT @var1, @var2;
+
+                CALL compter_races_selon_espece (2, @nb_races_chats);
+
+                SELECT @nb_races_chats;
+
+            -- V.4.2.3.3. Procédure avec deux paramètres, un entrant et un entrant-sortant
+            -- ---------------------------------------------------------------------------
+
+            DELIMITER |
+
+            CREATE PROCEDURE calculer_prix (IN p_animal_id INT, INOUT p_prix DECIMAL(7,2))
+            BEGIN
+            SELECT p_prix + COALESCE(Race.prix, Espece.prix) INTO p_prix
+            FROM Animal
+            INNER JOIN Espece ON Espece.id = Animal.espece_id
+            LEFT JOIN Race ON Race.id = Animal.race_id
+            WHERE Animal.id = p_animal_id;
+            END;
+
+            DELIMITER ;
+
+            SET @prix = 0; -- On initialise @prix à 0
+
+            CALL calculer_prix (13, @prix); -- Achat de Rouquine
+            SELECT @prix AS prix_intermediaire;
+
+            CALL calculer_prix (24, @prix); -- Achat de Cartouche
+            SELECT @prix AS prix_intermediaire;
+
+            CALL calculer_prix (42, @prix); -- Achat de Bilba
+            SELECT @prix AS prix_intermediaire;
+
+            CALL calculer_prix (75, @prix); -- Achat de Mimi
+            SELECT @prix AS total;
 
             
 
