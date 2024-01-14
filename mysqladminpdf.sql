@@ -1,4 +1,4 @@
--- Active: 1705125710000@@127.0.0.1@3306@mysqladminpdf
+-- Active: 1705242688144@@127.0.0.1@3306@mysqladminpdf
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -2391,8 +2391,35 @@ SELECT id, nom, espece_id, prix FROM Race;
         -- V.4.4.4. En RESUME (lesona be)
 
 
+-- V.5. STRUCTURER SES INSTRUCTIONS
+-- --------------------------------
+
+    -- v.5.1. Bloc d'instructions et variable
+    -- V.5.2. Structures conditionnelles
+    -- V.5.3. Boucles
 
 
+    -- v.5.1. Bloc d'instructions et variable
+    -- ---------------------------------------
+        -- V.5.1.1 Blocks d'instructions
+        -- V.5.1.1 Variables LOCALes
+    
+
+    -- V.5.2. Structures conditionnelles
+    -- ---------------------------------
+        -- V.5.2.1. La structure IF
+        -- V.5.2.2. La structure CASE
+        -- V.5.2.3. Utiliser une structure conditionnelle directement dans une requetep
+
+
+    -- V.5.3. Boucles
+    -- --------------
+        -- V.5.3.1. La boucle WHILE
+        -- V.5.3.2. La boucle REPEAT
+        -- V.5.3.3. Donner une label a  une boucle
+        -- V.5.3.4. Les instructions LEAVES et ITERATES
+        -- V.5.3.5. La boucle LOOP
+        -- V.5.3.6. En resumee
 
 
 
