@@ -1881,3 +1881,133 @@ SELECT * FROM Client
 WHERE id BETWEEN 3 AND 8
 LOCK IN SHARE MODE;
 
+-- V.2.3.6. Rôle des index
+-- -----------------------
+
+-- session 1
+
+START TRANSACTION;
+UPDATE Animal
+SET commentaires = CONCAT_WS(' ', 'Animal fondateur.',
+commentaires) -- On ajoute une phrase de commentaire
+WHERE date_naissance < '2007-01-01';
+-- à tous les animaux nés avant 2007
+
+-- Session 2 :
+START TRANSACTION;
+UPDATE Animal
+SET commentaires = 'Aveugle' -- On modifie les commentaires
+WHERE date_naissance = '2008-03-10 13:40:00'; -- De l'animal né le 10 mars 2008 à 13h40
+
+SHOW INDEX FROM Animal;
+
+-- session 1
+START TRANSACTION;
+
+UPDATE Animal -- Modification de tous les rats
+SET commentaires = CONCAT_WS(' ', 'Très intelligent.',
+commentaires)
+WHERE espece_id = 5;
+
+-- session 2
+START TRANSACTION;
+
+UPDATE Animal
+SET commentaires = 'Aveugle'
+WHERE id = 34; -- Modification de l'animal 34 (un chat)
+
+UPDATE Animal
+SET commentaires = 'Aveugle'
+WHERE id = 72;
+ -- Modification de l'animal 72 (un rat)
+
+-- V.2.3.7. Lignes fantômes et index de clé suivante
+-- -------------------------------------------------
+
+START TRANSACTION;
+
+SELECT * FROM Adoption WHERE client_id > 13 
+FOR UPDATE;-- ne pas oublier le FOR UPDATE pour poser le verrou
+
+START TRANSACTION;
+
+INSERT INTO Adoption (client_id, animal_id, date_reservation, prix)
+VALUES (15, 61, NOW(), 735.00); -- misy code tsy milamina
+
+START TRANSACTION;
+
+SELECT Animal.id, Animal.nom, Animal.date_naissance, Race.nom as race, COALESCE(Race.prix, Espece.prix) as prix FROM Animal
+    INNER JOIN Espece ON Animal.espece_id = Espece.id
+        LEFT JOIN Race ON Animal.race_id = Race.id 
+        -- Jointure externe, on ne veut pas que les chats de race
+            WHERE Espece.nom_courant = 'Chat' -- Uniquement les chats...
+            AND Animal.id NOT IN (SELECT animal_id FROM Adoption) -- ... quin'ont pas encore été adoptés
+            LOCK IN SHARE MODE;
+
+
+SELECT Animal.id, Animal.nom, Animal.date_naissance, Race.nom as race, COALESCE(Race.prix, Espece.prix) as prix FROM Animal
+    INNER JOIN Espece ON Animal.espece_id = Espece.id
+        LEFT JOIN Race ON Animal.race_id = Race.id 
+        -- Jointure externe, on ne veut pas que les chats de race
+            WHERE Espece.nom_courant = 'Chat' -- Uniquement les chats...
+            AND Animal.id NOT IN (SELECT animal_id FROM Adoption) -- ... quin'ont pas encore été adoptés
+
+START TRANSACTION;
+
+SELECT Animal.id, Animal.nom, Animal.date_naissance, Race.nom as race, COALESCE(Race.prix, Espece.prix) as prix FROM Animal
+    INNER JOIN Espece ON Animal.espece_id = Espece.id 
+        INNER JOIN Race ON Animal.race_id = Race.id -- Jointure interne cette fois 
+            WHERE Race.nom = 'Maine Coon' -- Uniquement les Maine Coon... 
+            AND Animal.id NOT IN (SELECT animal_id FROM Adoption)  -- ... qui n'ont pas encore été adoptés 
+            LOCK IN SHARE MODE ;
+
+SELECT Animal.id, Animal.nom, Animal.date_naissance, Race.nom as race, COALESCE(Race.prix, Espece.prix) as prix FROM Animal
+    INNER JOIN Espece ON Animal.espece_id = Espece.id
+        INNER JOIN Race ON Animal.race_id = Race.id -- Jointure interne cette fois 
+            WHERE Race.nom = 'Maine Coon'-- Uniquement les Maine Coon... 
+            AND Animal.id NOT IN (SELECT animal_id FROM Adoption) -- ... qui n'ont pas encore été adoptés 
+            
+-- verification
+select * from race where nom = 'Maine coon';
+
+select * from animal where Animal.id NOT IN (SELECT animal_id FROM Adoption);
+
+-- fin verification
+
+INSERT INTO Adoption (client_id, animal_id, date_reservation, prix, paye)
+SELECT id, 8, NOW(), 735.00, 1
+FROM Client
+WHERE email = 'jean.dupont@email.com';
+
+COMMIT
+
+-- verification
+SELECT id, 8, NOW(), 735.00, 1
+FROM Client
+WHERE email = 'jean.dupont@email.com';
+
+select * from adoption where client_id = 1;
+
+-- fin verification
+
+-- V.2.4. Niveaux d'isolation
+-- V.2.4.1 Syntaxe
+-- V.2.4.2 les differents niveaux
+-- V.2.4.3 En RESUME
+
+-- Syntaxe
+SET [GLOBAL | SESSION] TRANSACTION ISOLATION LEVEL { READ
+UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE
+}
+
+-- Les differents niveaux
+START TRANSACTION;
+
+UPDATE Race
+SET prix = 0
+WHERE id = 7;
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+START TRANSACTION;
+
+SELECT id, nom, espece_id, prix FROM Race;
