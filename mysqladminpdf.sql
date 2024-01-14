@@ -2252,6 +2252,44 @@ SELECT id, nom, espece_id, prix FROM Race;
                 END;
 
             
+        -- V.4.1.3. Delimiteur
+        -- -------------------
+
+            -- DEFINITION
+
+            -- Ce qu’on appelle délimiteur, c’est tout simplement (par défaut), le caractère ; .
+
+            -- FIN DEFINITION
+
+            -- Pour changer le délimiteur, il suffit d’utiliser cette commande :
+            DELIMITER |
+
+            SELECT 'test'|
+
+            SELECT * FROM animal|
+
+
+        -- V.4.1.4. Creation d'une procedure stockee
+            
+            DELIMITER |
+            -- On change le délimiteur
+
+            CREATE PROCEDURE afficher_races() -- toujours pas de paramètres, toujours des parenthèses 
+                BEGIN
+                    SELECT id, nom, espece_id, prix
+                    FROM Race; -- Cette fois, le ; ne nous embêtera pas 
+                END; -- TSY MITOVY AMIN'NY PDF
+            -- Et on termine bien sûr la commande CREATE PROCEDURE par notre nouveau délimiteur
+
+
+        -- V.4.1.5. Utilisation d'une procedute stockee
+
+        CALL afficher_races()| -- le délimiteur est toujours | !!!
+
+        
+
+
+            
 
 
 
