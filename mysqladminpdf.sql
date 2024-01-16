@@ -2402,9 +2402,162 @@ SELECT id, nom, espece_id, prix FROM Race;
     -- v.5.1. Bloc d'instructions et variable
     -- ---------------------------------------
         -- V.5.1.1 Blocks d'instructions
-        -- V.5.1.1 Variables LOCALes
+        -- V.5.1.2 Variables LOCALes
     
+        -- V.5.1.1 Blocks d'instructions
+        -- -----------------------------
+            -- Syntaxe: structure imbriquer
+            BEGIN
+                SELECT 'Bloc d''instructions principal';
 
+                BEGIN
+                    SELECT
+                        'Bloc d''instructions 2, imbriqué dans le bloc principal';
+                    BEGIN
+                        SELECT
+                            'Bloc d''instructions 3, imbriqué dans le bloc d''instructions 2';
+                    END;
+                END;
+
+                BEGIN
+                    SELECT
+                    'Bloc d''instructions 4, imbriqué dans le bloc principal';
+                END;
+            END;
+
+        -- V.5.1.2 Variables LOCALes
+        -- -------------------------
+            -- V.5.1.2.1. Déclaration d’une variable locale
+            -- V.5.1.2.2. Portée des variables locales dans un bloc d’instruction
+
+
+            -- V.5.1.2.1. Déclaration d’une variable locale
+                -- Syntaxe:
+                DECLARE nom_variable type_variable [DEFAULT valeur_defaut];
+
+                -- La déclaration d’une variable locale se fait avec l’instruction DECLARE.
+
+                -- Exemple : voici une procédure stockée qui donne la date d’aujourd’hui et de demain
+
+                DELIMITER |
+                CREATE PROCEDURE aujourdhui_demain ()
+                BEGIN
+                    DECLARE v_date DATE DEFAULT CURRENT_DATE(); 
+                    -- On déclare une variable locale et on lui met une valeur par défaut
+                    
+
+                    SELECT DATE_FORMAT(v_date, '%W %e %M %Y') AS Aujourdhui;
+
+                    SET v_date = v_date + INTERVAL 1 DAY; -- On change la valeur de la variable locale
+                    SELECT DATE_FORMAT(v_date, '%W %e %M %Y') AS Demain;
+                END;
+                DELIMITER ;
+
+                SET lc_time_names = 'fr_FR';
+                CALL aujourdhui_demain();
+
+
+            -- V.5.1.2.2. Portée des variables locales dans un bloc d’instruction
+            -- ------------------------------------------------------------------
+
+            -- Les variables locales n’existent que dans le bloc d’instructions dans lequel elles ont été déclarées.
+            -- Dès que le mot-clé END est atteint, toutes les variables locales du bloc sont détruites.
+
+
+            -- Exemple 1 porte variables:
+
+            DELIMITER |
+            CREATE PROCEDURE test_portee1()
+            BEGIN
+                DECLARE v_test1 INT DEFAULT 1;
+
+                BEGIN
+                    DECLARE v_test2 INT DEFAULT 2;
+
+                    SELECT 'Imbriqué' AS Bloc;
+                    SELECT v_test1, v_test2;
+                END;
+
+                SELECT 'Principal' AS Bloc;
+                SELECT v_test1, v_test2;
+
+            END;
+            DELIMITER ;
+
+            CALL test_portee1();
+            
+
+            DELIMITER |
+            CREATE PROCEDURE test_portee12()
+            BEGIN
+                DECLARE v_test1 INT DEFAULT 1;
+
+                BEGIN
+                    DECLARE v_test2 INT DEFAULT 2;
+
+                    SELECT 'Imbriqué' AS Bloc;
+                    SELECT v_test1, v_test2;
+                END;
+
+                SELECT 'Principal' AS Bloc;
+                SELECT v_test1;--, v_test2;
+
+            END;
+            DELIMITER ;
+
+            CALL test_portee12();
+
+
+            -- Exemple 2 porte variables:
+            DELIMITER |
+            CREATE PROCEDURE test_portee2()
+            BEGIN
+                DECLARE v_test1 INT DEFAULT 1;
+
+                BEGIN
+                    DECLARE v_test2 INT DEFAULT 2;
+
+                    SELECT 'Imbriqué' AS Bloc;
+                    SELECT v_test1, v_test2;
+                END;
+
+                BEGIN
+                    SELECT 'Principal' AS Bloc;
+                    SELECT v_test1, v_test2;
+                END;
+
+            END;
+            DELIMITER ;
+
+            CALL test_portee2();
+
+            -- À nouveau, v_test1, déclarée dans le bloc principal,
+            -- existe dans les deux blocs imbriqués. 
+            -- Par contre, v_test2 n’existe que dans le bloc imbriqué
+            -- dans lequel elle est déclarée.
+
+            -- Exemple 3 porte variables:
+            DELIMITER |
+            CREATE PROCEDURE test_portee3()
+            BEGIN
+                DECLARE v_test INT DEFAULT 1;
+
+                SELECT v_test AS 'Bloc principal';
+
+                BEGIN
+                    DECLARE v_test INT DEFAULT 0;
+
+                    SELECT v_test AS 'Bloc imbriqué';
+                    SET v_test = 2;
+                    SELECT v_test AS 'Bloc imbriqué après modification';
+                END;
+
+                SELECT v_test AS 'Bloc principal';
+            END ;
+            DELIMITER ;
+
+            CALL test_portee3();
+            
     -- V.5.2. Structures conditionnelles
     -- ---------------------------------
         -- V.5.2.1. La structure IF
