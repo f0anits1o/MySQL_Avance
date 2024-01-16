@@ -2565,6 +2565,106 @@ SELECT id, nom, espece_id, prix FROM Race;
         -- V.5.2.3. Utiliser une structure conditionnelle directement dans une requetep
 
 
+        -- V.5.2.1. La structure IF
+        -- ------------------------
+            -- V.5.2.1.1. Le cas le plus simple : si la condition est vraie, alors on exécute ces instructions
+            -- V.5.2.1.2.  Deuxième cas : si ... alors, sinon
+            -- V.5.2.1.3. Troisième et dernier cas : plusieurs conditions alternatives
+
+            -- Syntaxe:
+            IF condition THEN instructions
+                [ELSEIF autre_condition THEN instructions
+                [ELSEIF ...]]
+                [ELSE instructions]
+            END IF;
+            -- Fin Syntaxe
+
+            -- V.5.2.1.1. Le cas le plus simple : si la condition est vraie, alors on exécute ces instructions
+            -- -----------------------------------------------------------------------------------------------
+                IF condition THEN
+                    instructions
+                END IF;
+
+                -- Exemple:
+                DELIMITER |
+                CREATE PROCEDURE est_adopte(IN p_animal_id INT)
+                BEGIN
+                    DECLARE v_nb INT DEFAULT 0; -- On crée une variable locale
+
+                    SELECT COUNT(*) INTO v_nb -- On met le nombre de lignes correspondant à l'animal
+                    FROM Adoption -- dans Adoption dans notre variable locale
+                    WHERE animal_id = p_animal_id;
+
+                    IF v_nb > 0 THEN -- On teste si v_nb est supérieur à 0 (donc si l'animal a été adopté)
+                    SELECT 'J''ai déjà été adopté !';
+                    END IF; -- Et on n'oublie surtout pas le END IF et le ; final
+                END ;
+                DELIMITER ;
+
+                CALL est_adopte(3);
+                CALL est_adopte(28);
+
+                -- Seul le premier appel à la procédure va afficher 'J''ai déjà été adopté !', puisque l’animal
+                -- 3 est présent dans la table Adoption, contrairement à l’animal 28.
+
+
+            -- V.5.2.1.2.  Deuxième cas : si ... alors, sinon
+            -- ----------------------------------------------
+
+            -- exemple:  la procédure suivante affiche 'Je suis né avant 2010' ou 'Je suis né après
+            -- 2010', selon la date de naissance de l’animal transmis en paramètre.
+
+            DELIMITER |
+            CREATE PROCEDURE avant_apres_2010(IN p_animal_id INT)
+            BEGIN
+                DECLARE v_annee INT;
+
+                SELECT YEAR(date_naissance) INTO v_annee
+                FROM Animal
+                WHERE id = p_animal_id;
+
+                IF v_annee < 2010 THEN
+                    SELECT 'Je suis né avant 2010' AS naissance;
+                ELSE -- Pas de THEN
+                    SELECT 'Je suis né après 2010' AS naissance;
+                END IF; -- Toujours obligatoire
+
+            END ;
+            DELIMITER ;
+
+            CALL avant_apres_2010(34); -- Né le 20/04/2008
+            CALL avant_apres_2010(62); --  Né le 13/02/2012
+
+            -- Tandremo: ELSE ne doit pas être suivi de THEN.
+
+
+            -- V.5.2.1.3. Troisième et dernier cas : plusieurs conditions alternatives
+            -- -----------------------------------------------------------------------
+             DELIMITER |
+            CREATE PROCEDURE message_sexe(IN p_animal_id INT)
+            BEGIN
+                DECLARE v_sexe VARCHAR(10);
+
+                SELECT sexe INTO v_sexe
+                FROM Animal
+                WHERE id = p_animal_id;
+
+                IF (v_sexe = 'F') THEN -- Première possibilité
+                SELECT 'Je suis une femelle !' AS sexe;
+                ELSEIF (v_sexe = 'M') THEN -- Deuxième possibilité
+                SELECT 'Je suis un mâle !' AS sexe;
+                ELSE -- Défaut
+                SELECT 'Je suis en plein questionnement existentiel...' AS sexe;
+                END IF;
+            END;
+            DELIMITER ;
+
+            CALL message_sexe(8); -- Mâle
+            CALL message_sexe(6); -- Femelle
+
+            CALL message_sexe(9); -- Ni l'un ni l'autre
+            
+
     -- V.5.3. Boucles
     -- --------------
         -- V.5.3.1. La boucle WHILE
