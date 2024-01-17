@@ -1,4 +1,4 @@
--- Active: 1705242688144@@127.0.0.1@3306@mysqladminpdf
+-- Active: 1705491640972@@127.0.0.1@3306@mysqladminpdf
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -2665,6 +2665,112 @@ SELECT id, nom, espece_id, prix FROM Race;
             CALL message_sexe(9); -- Ni l'un ni l'autre
             
 
+        -- V.5.2.2. La structure CASE
+        -- --------------------------
+            -- V.5.2.2.1. Première syntaxe : conditions d’égalité
+            -- V.5.2.2.2. Seconde syntaxe : toutes conditions
+            
+
+            # Deux syntaxes sont possibles pour utiliser CASE.
+
+            -- V.5.2.2.1. Première syntaxe : conditions d’égalité
+            -- --------------------------------------------------
+
+                CASE valeur_a_comparer
+                    WHEN possibilite1 THEN instructions
+                    [WHEN possibilite2 THEN instructions] ...
+                    [ELSE instructions]
+                END CASE;
+
+                -- Exemple:
+                DELIMITER |
+                CREATE PROCEDURE message_sexe2(IN p_animal_id INT)
+                BEGIN
+                    DECLARE v_sexe VARCHAR(10);
+
+                    SELECT sexe INTO v_sexe
+                    FROM Animal
+                    WHERE id = p_animal_id;
+
+                    CASE v_sexe
+                        WHEN 'F' THEN -- Première possibilité
+                            SELECT 'Je suis une femelle !' AS sexe;
+                        WHEN 'M' THEN -- Deuxième possibilité
+                            SELECT 'Je suis un mâle !' AS sexe;
+                        ELSE -- Défaut
+                            SELECT 'Je suis en plein questionnement existentiel...' AS sexe;
+                    END CASE;
+                END;
+                DELIMITER ;
+
+                CALL message_sexe2(8); -- Mâle
+                CALL message_sexe2(6); -- Femelle
+
+                CALL message_sexe2(9);
+
+
+            -- V.5.2.2.2. Seconde syntaxe : toutes conditions
+            -- ----------------------------------------------
+
+                CASE
+                    WHEN condition THEN instructions
+                    [WHEN condition THEN instructions] ...
+                    [ELSE instructions]
+                END CASE
+
+
+                -- Exemple : on reprend la procédure avant_apres_2010(), qu’on réécrit avec CASE, et en donnant
+                -- une possibilité en plus. De plus, on passe le message en paramètre OUT pour changer un peu.
+
+                DELIMITER |
+                CREATE PROCEDURE avant_apres_2010_case (IN p_animal_id INT, OUT p_message VARCHAR(100))
+                BEGIN
+                    DECLARE v_annee INT;
+
+                    SELECT YEAR(date_naissance) INTO v_annee
+                    FROM Animal
+                    WHERE id = p_animal_id;
+
+                    CASE
+                        WHEN v_annee < 2010 THEN
+                            SET p_message = 'Je suis né avant 2010.';
+                        WHEN v_annee = 2010 THEN
+                            SET p_message = 'Je suis né en 2010.';
+                        ELSE
+                        SET p_message = 'Je suis né après 2010.';
+                    END CASE;
+                END ;
+                DELIMITER ;
+
+                CALL avant_apres_2010_case(59, @message);
+                SELECT @message;
+
+                CALL avant_apres_2010_case(62, @message);
+                SELECT @message;
+
+                CALL avant_apres_2010_case(63, @message);
+                SELECT @message;
+
+
+        -- V.5.2.3. Utiliser une structure conditionnelle directement dans une requete 
+        -- ---------------------------------------------------------------------------
+
+        # exemple 1:
+            SELECT id, nom, CASE
+                WHEN sexe = 'M' THEN 'Je suis un mâle !'
+                WHEN sexe = 'F' THEN 'Je suis une femelle !'
+                ELSE 'Je suis en plein questionnement existentiel...'
+                END AS message
+            FROM Animal
+            WHERE id IN (9, 8, 6);
+
+        # exemple 2:
+            SELECT nom, IF(sexe = 'M', 'Je suis un mâle', 'Je ne suis pas un mâle') AS sexe
+            FROM Animal # exemple 2:
+            WHERE espece_id = 5;
+
+
+
     -- V.5.3. Boucles
     -- --------------
         -- V.5.3.1. La boucle WHILE
@@ -2673,6 +2779,15 @@ SELECT id, nom, espece_id, prix FROM Race;
         -- V.5.3.4. Les instructions LEAVES et ITERATES
         -- V.5.3.5. La boucle LOOP
         -- V.5.3.6. En resumee
+        
+        -- Une boucle est une structure qui permet de répéter plusieurs fois une série d’instructions. Il
+        -- existe trois types de boucles en MySQL : WHILE, LOOP et REPEAT.
+
+        
+        -- V.5.3.1. La boucle WHILE
+        -- ------------------------
+            -- Syntaxe
+            
 
 
 
