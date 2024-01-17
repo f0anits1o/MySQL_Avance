@@ -2780,23 +2780,265 @@ SELECT id, nom, espece_id, prix FROM Race;
         -- V.5.3.5. La boucle LOOP
         -- V.5.3.6. En resumee
         
-        -- Une boucle est une structure qui permet de répéter plusieurs fois une série d’instructions. Il
-        -- existe trois types de boucles en MySQL : WHILE, LOOP et REPEAT.
+        # Une boucle est une structure qui permet de répéter plusieurs fois une série d’instructions. Il
+        # existe trois types de boucles en MySQL : WHILE, LOOP et REPEAT.
 
         
         -- V.5.3.1. La boucle WHILE
         -- ------------------------
             -- Syntaxe
+            WHILE condition DO -- Attention de ne pas oublier le DO, erreur classique
+                instructions
+            END WHILE
+
+            -- Exemple : la procédure suivante affiche les nombres entiers de 1 à p_nombre (passé en
+            -- paramètre).
+
+            DELIMITER |
+            CREATE PROCEDURE compter_jusque_while(IN p_nombre INT)
+            BEGIN
+                DECLARE v_i INT DEFAULT 1;
+
+                WHILE v_i <= p_nombre DO
+                    SELECT v_i AS nombre;
+
+                    SET v_i = v_i + 1; -- À ne surtout pas oublier, sinon la condition restera vraie
+                END WHILE;
+            END ;
+            DELIMITER ;    
+
+            CALL compter_jusque_while(3);
+
+
+        -- V.5.3.2. La boucle REPEAT
+        -- -------------------------
+            # La boucle REPEAT travaille en quelque sorte de manière opposée à WHILE, puisqu’elle exécute
+            # des instructions de la boucle jusqu’à ce que la condition donnée devienne vraie.
+
+
+            # Exemple : voici la même procédure écrite avec une boucle REPEAT
+
+            DELIMITER |
+            CREATE PROCEDURE compter_jusque_repeat(IN p_nombre INT)
+            BEGIN       
+                DECLARE v_i INT DEFAULT 1;
+
+                REPEAT
+                    SELECT v_i AS nombre;
+
+                    SET v_i = v_i + 1; -- À ne surtout pas oublier, sinon la condition restera vraie
+                UNTIL v_i > p_nombre END REPEAT;
+            END ;
+            DELIMITER ;
+
+            CALL compter_jusque_repeat(3);
+
+
+            -- Condition fausse dès le départ, on ne rentre pas dans la boucle
+            CALL compter_jusque_while(0);
+
+            -- Condition fausse dès le départ, on rentre quand même une fois dans la boucle
+            CALL compter_jusque_repeat(0);
+
+
+        -- V.5.3.3. Donner une label a  une boucle
+        -- ---------------------------------------
             
+            -- Syntaxe
+
+            -- Boucle WHILE
+            -- ------------
+            super_while: WHILE condition DO -- La boucle a pour label "super_while"
+            instructions
+            END WHILE super_while; -- On ferme en donnant le label de la boucle (facultatif)
+
+            -- Boucle REPEAT
+            -- -------------
+            repeat_genial: REPEAT -- La boucle s'appelle "repeat_genial"
+            instructions
+            UNTIL condition END REPEAT; -- Cette fois, on choisit de ne pas faire référence au label lors de la fermeture
+            
+            -- Bloc d'instructions
+            -- -------------------
+            bloc_extra: BEGIN -- Le bloc a pour label "bloc_extra"
+            instructions
+            END bloc_extra;
+
+            #####################################################################################################
+            #                                                                                                   #
+            #                               Mais en quoi cela peut-il être utile ?                              #   
+            #                                                                                                   #
+            # D’une part, cela peut permettre de clarifier le code lorsqu’il y a beaucoup de boucles et de      #
+            # blocs d’instructions imbriqués. D’autre part, il est nécessaire de donner un label aux boucles et #
+            #aux blocs d’instructions pour lesquels on veut pouvoir utiliser les instructions ITERATE et LEAVE. #
+            #                                                                                                   #
+            #####################################################################################################
 
 
 
+        -- V.5.3.4. Les instructions LEAVES et ITERATES
+        -- --------------------------------------------
+
+            -- V.5.3.4.1. LEAVE : quitter la boucle ou le bloc d’instructions
+            -- V.5.3.4.2. ITERATE : déclencher une nouvelle itération de la boucle
+
+
+            -- V.5.3.4.1. LEAVE : quitter la boucle ou le bloc d’instructions
+            -- --------------------------------------------------------------
+
+                -- Syntaxe:
+                LEAVE label_structure;
+
+                -- Exemple : cette procédure incrémente de 1, et affiche, un nombre entier passé en paramètre.
+                -- Et cela, 4 fois maximum. Mais si l’on trouve un multiple de 10, la boucle s’arrête.
+
+                DELIMITER |
+                CREATE PROCEDURE test_leave1(IN p_nombre INT)
+                BEGIN
+
+                    DECLARE v_i INT DEFAULT 4;
+
+                    SELECT 'Avant la boucle WHILE';
+
+                    while1: WHILE v_i > 0 DO
+
+                        SET p_nombre = p_nombre + 1; -- On incrémente le nombre de 1
+
+                        IF p_nombre%10 = 0 THEN -- Si p_nombre est divisible par 10,
+                            SELECT 'Stop !' AS 'Multiple de 10';
+                            LEAVE while1; -- On quitte la boucle WHILE.
+                        END IF;
+
+                        SELECT p_nombre; -- On affiche p_nombre
+                        SET v_i = v_i - 1; -- Attention de ne pas l'oublier
+
+                END WHILE while1;
+
+                SELECT 'Après la boucle WHILE';
+                END;
+                DELIMITER ;
+
+                CALL test_leave1(3); -- La boucle s'exécutera 4 fois
+
+                CALL test_leave1(8); -- La boucle s'arrêtera dès qu'on atteint 10
+
+
+                # Exemple : voici la même procédure. Cette fois-ci un multiple de 10 provoque l’arrêt de toute
+                # la procédure, pas seulement de la boucle WHILE.
+
+                DELIMITER |
+                CREATE PROCEDURE test_leave2(IN p_nombre INT)
+                corps_procedure: BEGIN -- On donne un label au bloc d'instructions principal
+                    DECLARE v_i INT DEFAULT 4;
+
+                    SELECT 'Avant la boucle WHILE';
+                    while1: WHILE v_i > 0 DO
+                        SET p_nombre = p_nombre + 1; -- On incrémente le nombre de 1
+                            IF p_nombre%10 = 0 THEN -- Si p_nombre est divisible par 10,
+                            SELECT 'Stop !' AS 'Multiple de 10';
+                        LEAVE corps_procedure; -- je quitte la procédure.
+                        END IF;
+
+                        SELECT p_nombre; -- On affiche p_nombre
+                        SET v_i = v_i - 1; -- Attention de ne pas l'oublier
+                    END WHILE while1;
+
+                    SELECT 'Après la boucle WHILE';
+                    END;
+                DELIMITER ;
+
+                CALL test_leave2(8);
+
+
+                # Exemple : la procédure suivante affiche les nombres de 4 à 1, en précisant s’ils sont pairs. Sauf
+                # pour le nombre 2, pour lequel une instruction LEAVE empêche l’affichage habituel.
+
+
+                DELIMITER |
+                CREATE PROCEDURE test_leave3()
+                BEGIN
+                DECLARE v_i INT DEFAULT 4;
+
+                WHILE v_i > 0 DO
+
+                    IF v_i%2 = 0 THEN
+                        if_pair: BEGIN
+                            IF v_i = 2 THEN -- Si v_i vaut 2
+                                LEAVE if_pair; -- On quitte le bloc "if_pair", ce qui revient à quitter la structure IF v_i%2 = 0
+                            END IF;
+                            SELECT CONCAT(v_i, ' est pair') AS message;
+                        END if_pair;
+                    ELSE
+                        if_impair: BEGIN
+                            SELECT CONCAT(v_i, ' est impair') AS message;
+                        END if_impair;
+                    END IF;
+
+                    SET v_i = v_i - 1;
+                END WHILE;
+                END;
+                DELIMITER ;
+
+                CALL test_leave3();
+
+
+            -- V.5.3.4.2. ITERATE : déclencher une nouvelle itération de la boucle
+            -- -------------------------------------------------------------------
+
+                # Exemple : la procédure suivante affiche les nombres de 1 à 3, avec un message avant le IF et
+                # après le IF. Sauf pour le nombre 2, qui relance une itération de la boucle dans le IF.
+
+                DELIMITER |
+                CREATE PROCEDURE test_iterate()
+                BEGIN
+                 DECLARE v_i INT DEFAULT 0;
+
+                 boucle_while: WHILE v_i < 3 DO
+                    SET v_i = v_i + 1;
+                    SELECT v_i, 'Avant IF' AS message;
+
+                    IF v_i = 2 THEN
+                    ITERATE boucle_while;
+
+                    END IF;
+                    SELECT v_i, 'Après IF' AS message; -- Ne sera pas exécuté pour v_i = 2
+                 END WHILE;
+                END ;
+                DELIMITER ;
+
+                CALL test_iterate();
+
+
+        -- V.5.3.5. La boucle LOOP
+        -- -----------------------
+
+            -- Syntaxe
+            [label:] LOOP
+            instructions
+            END LOOP [label]
+
+            # Exemple : à nouveau une procédure qui affiche les nombres entiers de 1 à p_nombre.
+
+            DELIMITER |
+            CREATE PROCEDURE compter_jusque_loop(IN p_nombre INT)
+            BEGIN
+                DECLARE v_i INT DEFAULT 1;
+
+                boucle_loop: LOOP
+                    SELECT v_i AS nombre;
+    
+                    SET v_i = v_i + 1;
+    
+                    IF v_i > p_nombre THEN
+                    LEAVE boucle_loop;
+                    END IF;
+                END LOOP;
+            END ;
+            DELIMITER ;
+
+            CALL compter_jusque_loop(3);
 
 
 
-                
-
-
-                
 
 
