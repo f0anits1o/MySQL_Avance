@@ -3053,6 +3053,310 @@ SELECT id, nom, espece_id, prix FROM Race;
         -- V.6.1.1. Creation d'un gestionnaire d'erreure
         -- V.6.1.2. Definition de l'erreur geree
         -- V.6.1.3. Declarer plusieurs gestionnaires, gerer plusieurs erreurs par gestionnaire
+        
+            DELIMITER |
+            CREATE PROCEDURE ajouter_adoption(IN p_client_id INT, IN p_animal_id INT, IN p_date DATE, IN p_paye TINYINT)
+            BEGIN
+                DECLARE v_prix DECIMAL(7,2);
+
+                SELECT COALESCE(Race.prix, Espece.prix) INTO v_prix
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                LEFT JOIN Race ON Race.id = Animal.race_id
+                WHERE Animal.id = p_animal_id;
+
+                INSERT INTO Adoption (animal_id, client_id, date_reservation, date_adoption, prix, paye)
+                VALUES (p_animal_id, p_client_id, CURRENT_DATE(), p_date, v_prix, p_paye);
+
+
+                SELECT 'Adoption correctement ajoutée' AS message;
+            END;
+            DELIMITER ;
+
+            # Plusieurs erreurs sont susceptibles de se déclencher selon les paramètres passés à cette procédure
+
+            # Exemple 1 : le client n’existe pas.
+            SET @date_adoption = CURRENT_DATE() + INTERVAL 7 DAY;
+
+            CALL ajouter_adoption(18, 6, @date_adoption, 1);
+
+
+            # Exemple 2 : l’animal a déjà été adopté.
+            CALL ajouter_adoption(12, 21, @date_adoption, 1);
+
+
+            # Exemple 3 : l’animal n’existe pas, v_prix est donc NULL
+            CALL ajouter_adoption(12, 102, @date_adoption, 1);
+
+#####################################################################################################
+#                                                                                                   #
+#               Pour empêcher ces erreurs intempestives, deux solutions :                           #
+#                                                                                                   #
+#    — vérifier chaque paramètre pouvant poser problème (p_animal_id et p_client_id ne sont         #
+#    pas NULL et correspondent à quelque chose dans les tables Animal et Client, p_animal_id        #
+#    ne correspond pas à un animal déjà adopté, etc.) ;                                             #
+#                                                                                                   #
+#    — utiliser un gestionnaire d’erreur : c’est ce que nous allons apprendre à faire ici           #
+#                                                                                                   #
+#####################################################################################################
+
+
+        -- V.6.1.1. Creation d'un gestionnaire d'erreure
+        -- ---------------------------------------------
+            -- Syntaxe:
+                DECLARE { EXIT | CONTINUE } HANDLER FOR { numero_erreur | {
+                            SQLSTATE identifiant_erreur } | condition }
+                instruction -- ou bloc d'instructions
+
+######################################################################################################
+#                                                                                                    #
+#   — Un gestionnaire d’erreur définit une instruction (une seule !), ou un bloc d’instructions      #
+#       (BEGIN ... END;), qui va être exécuté en cas d’erreur correspondant au gestionnaire.         #
+#   — Tous les gestionnaires d’erreur doivent être déclarés au même endroit : après la déclaration   #
+#       des variables locales, mais avant les instructions de la procédure.                          #
+#   — Un gestionnaire peut, soit provoquer l’arrêt de la procédure (EXIT), soit faire reprendre      #
+#       la procédure après avoir géré l’erreur (CONTINUE).                                           #
+#   — On peut identifier le type d’erreur que le gestionnaire va reconnaître de trois manières       #
+#       différentes : un numéro d’erreur, un identifiant, ou une CONDITION.                          #
+#   — Un gestionnaire étant défini grâce au mot-clé DECLARE, comme les variables locales, il a       #
+#       exactement la même portée que celles-ci.                                                     #
+#                                                                                                    #
+######################################################################################################
+
+
+            -- Exemples : ces deux procédures enregistrent une adoption en gérant les erreurs, l’une arrêtant
+            -- la procédure, l’autre relançant celle-ci :
+
+                DELIMITER |
+                CREATE PROCEDURE ajouter_adoption_exit(IN p_client_id INT, IN p_animal_id INT, IN p_date DATE, IN p_paye TINYINT)
+                BEGIN
+                    DECLARE v_prix DECIMAL(7,2);
+                    DECLARE EXIT HANDLER FOR SQLSTATE '23000'
+                        BEGIN
+                            SELECT 'Une erreur est survenue...';
+                            SELECT 'Arrêt prématuré de la procédure';
+                        END;
+
+                        SELECT 'Début procédure';
+
+                            SELECT COALESCE(Race.prix, Espece.prix) INTO v_prix
+                            FROM Animal
+                            INNER JOIN Espece ON Espece.id = Animal.espece_id
+                            LEFT JOIN Race ON Race.id = Animal.race_id
+                            WHERE Animal.id = p_animal_id;
+
+                            INSERT INTO Adoption (animal_id, client_id, date_reservation, date_adoption, prix, paye)
+                            VALUES (p_animal_id, p_client_id, CURRENT_DATE(), p_date, v_prix, p_paye);
+
+                        SELECT 'Fin procédure' AS message;
+                END;
+
+                
+                CREATE PROCEDURE ajouter_adoption_continue(IN p_client_id INT, IN
+                p_animal_id INT, IN p_date DATE, IN p_paye TINYINT)
+
+                BEGIN
+                    DECLARE v_prix DECIMAL(7,2);
+                    DECLARE CONTINUE HANDLER FOR SQLSTATE '23000' SELECT 'Une erreur est survenue...';
+
+                        SELECT 'Début procédure';
+
+                            SELECT COALESCE(Race.prix, Espece.prix) INTO v_prix
+                            FROM Animal
+                            INNER JOIN Espece ON Espece.id = Animal.espece_id
+                            LEFT JOIN Race ON Race.id = Animal.race_id
+                            WHERE Animal.id = p_animal_id;
+
+                            INSERT INTO Adoption (animal_id, client_id, date_reservation, date_adoption, prix, paye)
+                            VALUES (p_animal_id, p_client_id, CURRENT_DATE(), p_date, v_prix, p_paye);
+
+                        SELECT 'Fin procédure';
+                END;
+                DELIMITER ;
+
+                SET @date_adoption = CURRENT_DATE() + INTERVAL 7 DAY;               
+                CALL ajouter_adoption_exit(18, 6, @date_adoption, 1);
+                CALL ajouter_adoption_continue(18, 6, @date_adoption, 1);
+
+
+
+        -- V.6.1.2. Definition de l'erreur geree
+        -- -------------------------------------
+            -- V.6.1.2.1. Identifiant ou numéro MySQL de l’erreur
+            -- V.6.1.2.2. Utilisation d’une CONDITION
+            -- V.6.1.2.3. Conditions prédéfinies
+
+
+            -- V.6.1.2.1. Identifiant ou numéro MySQL de l’erreur
+            -- --------------------------------------------------
+                DECLARE CONTINUE HANDLER FOR SQLSTATE '23000' SELECT 'Une erreur est survenue...';
+
+#####################################################################################################
+#                                                                                                   #
+#              Le message d’erreur est constitué de trois éléments importants :                     #
+#                                                                                                   #
+#       — 1062 : le numéro d’erreur MySQL (un nombre entier) ;                                      #
+#       — 23000 : l’identifiant de l’état SQL (une chaîne de 5 caractères) ;                        #
+#       — Duplicate entry ’21’ for key ’ind_uni_animal_id’ : un message donnant le détail de        #
+#           l’erreur.                                                                               #
+#                                                                                                   #
+#   Identifiant de l’état SQL:                                                                      #
+#   Dans la procédure ajouter_adoption_continue(), c’est l’identifiant de l’état SQL ('23000')      #
+#   qui a été utilisé. Il s’agit d’une chaîne de 5 caractères, renvoyée par le serveur au client    # 
+#   pour informer de la réussite ou de l’échec d’une instruction. Un identifiant commençant par     #
+#   '00' par exemple, signifie que l’instruction a réussi.                                          #
+#                                                                                                   #
+#   '23000' est l’identifiant renvoyé lorsqu’une erreur concernant une contrainte                   #
+#   (NOT NULL, unicité, clé primaire ou secondaire,…) a été déclenchée.                             #
+#   Pour utiliser cet identifiant dans un gestionnaire d’erreur, il faut le faire précéder          #
+#   de SQLSTATE                                                                                     #
+#                                                                                                   #
+#    Numéro d’erreur MySQL                                                                          #
+#    Pour utiliser le numéro d’erreur SQL, par contre, il suffit de l’indiquer, comme un nombre     #
+#    entier                                                                                       #
+#                                                                                                   #
+#####################################################################################################
+
+                DECLARE CONTINUE HANDLER FOR 1062 SELECT 'Une erreur est survenue...';
+
+
+                -- V.6.1.2.2. Utilisation d’une CONDITION
+                -- --------------------------------------
+                    -- Syntaxe:
+                    DECLARE nom_erreur CONDITION FOR { SQLSTATE identifiant_SQL |numero_erreur_MySQL };
+    
+                    -- Exemple : réécrivons la procédure ajouter_adoption_exit() en nommant l’erreur 
+    
+                    DROP PROCEDURE ajouter_adoption_exit;
+                    DELIMITER |
+                    CREATE PROCEDURE ajouter_adoption_exit(IN p_client_id INT, IN p_animal_id INT, IN p_date DATE, IN p_paye TINYINT)
+                    BEGIN
+                        DECLARE v_prix DECIMAL(7,2);
+    
+                        DECLARE violation_contrainte CONDITION FOR SQLSTATE '23000'; -- On nomme l'erreur dont l'identifiant est 23000 "violation_contrainte"
+    
+                        DECLARE EXIT HANDLER FOR violation_contrainte -- Le gestionnaire sert donc à intercepter
+                            BEGIN -- les erreurs de type "violation_contrainte"
+                                SELECT 'Une erreur est survenue...';
+                                SELECT 'Arrêt prématuré de la procédure';
+                            END;
+    
+                            SELECT 'Début procédure';
+    
+                                SELECT COALESCE(Race.prix, Espece.prix) INTO v_prix
+                                FROM Animal
+                                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                                LEFT JOIN Race ON Race.id = Animal.race_id
+                                WHERE Animal.id = p_animal_id;
+    
+                                INSERT INTO Adoption (animal_id, client_id, date_reservation, date_adoption, prix, paye)
+                                VALUES (p_animal_id, p_client_id, CURRENT_DATE(), p_date, v_prix, p_paye);
+    
+                            SELECT 'Fin procédure';
+                    END;
+                    DELIMITER ;  
+    
+    
+                -- V.6.1.2.3. Conditions prédéfinies:
+                -- ----------------------------------
+
+######################################################################################################## 
+#                                                                                                      #
+#                       Il existe trois conditions prédéfinies dans MySQL :                            #
+#                                                                                                      #
+#     — SQLWARNING : tous les identifiants SQL commençant par ’01’, c’est-à-dire les avertissements    #
+#                    et les notes ;                                                                    #
+#     — NOT FOUND : tous les identifiants SQL commençant par ’02’, et que nous verrons plus en         #
+#                   détail avec les curseurs ;                                                         #
+#     — SQLEXCEPTION : tous les identifiants SQL ne commençant ni par ’00’, ni par ’01’, ni par        #
+#                      ’02’, donc les erreurs.                                                         #
+#                                                                                                      #
+######################################################################################################## 
+
+                    -- Exemple : réécriture de la procédure ajouter_adoption_exit(), de façon à ce que le gestionnaire
+                    --           intercepte toutes les erreurs SQL.
+
+                    DROP PROCEDURE ajouter_adoption_exit;
+                    DELIMITER |
+                    CREATE PROCEDURE ajouter_adoption_exit(IN p_client_id INT, IN p_animal_id INT, IN p_date DATE, IN p_paye TINYINT)
+                    BEGIN
+                        DECLARE v_prix DECIMAL(7,2);
+
+                        DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+                            BEGIN -- les erreurs de type "violation_contrainte"
+                                SELECT 'Une erreur est survenue...';
+                                SELECT 'Arrêt prématuré de la procédure';
+                            END;
+
+                            SELECT 'Début procédure';
+
+                                SELECT COALESCE(Race.prix, Espece.prix) INTO v_prix
+                                FROM Animal
+                                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                                LEFT JOIN Race ON Race.id = Animal.race_id
+                                WHERE Animal.id = p_animal_id;
+
+                                INSERT INTO Adoption (animal_id, client_id, date_reservation, date_adoption, prix, paye)
+                                VALUES (p_animal_id, p_client_id, CURRENT_DATE(), p_date, v_prix, p_paye);
+
+                            SELECT 'Fin procédure';
+                    END;
+                    DELIMITER ;
+
+
+        -- V.6.1.3. Declarer plusieurs gestionnaires, gerer plusieurs erreurs par gestionnaire
+        -- -----------------------------------------------------------------------------------
+            # Exemple : toujours avec la procédure ajouter_adoption_exit(). On peut l’écrire en détaillant
+            # différentes erreurs possibles, puis en ajoutant un gestionnaire général qui reconnaîtra les SQLEX
+            # CEPTION et les SQLWARNING, pour tous les cas qu’on ne traite pas dans les autres gestionnaires.
+            # Ce qui donne:
+
+        DROP PROCEDURE ajouter_adoption_exit;
+        DELIMITER |
+        CREATE PROCEDURE ajouter_adoption_exit(IN p_client_id INT, IN p_animal_id INT, IN p_date DATE, IN p_paye TINYINT)
+        BEGIN
+            DECLARE v_prix DECIMAL(7,2);
+
+            DECLARE violation_cle_etrangere CONDITION FOR 1452; -- Déclaration des CONDITIONS
+            DECLARE violation_unicite CONDITION FOR 1062;
+
+            DECLARE EXIT HANDLER FOR violation_cle_etrangere -- Déclaration du gestionnaire pour
+                BEGIN -- les erreurs de clés étrangères
+                    SELECT 'Erreur : violation de clé étrangère.';
+                END;
+
+                DECLARE EXIT HANDLER FOR violation_unicite -- Déclaration du gestionnaire pour
+                BEGIN -- les erreurs d'index unique
+                    SELECT 'Erreur : violation de contrainte d''unicité.';
+                END;
+
+                DECLARE EXIT HANDLER FOR SQLEXCEPTION, SQLWARNING -- Déclaration du gestionnaire pour
+                BEGIN -- toutes les autres erreurs ou avertissements
+                    SELECT 'Une erreur est survenue...';
+                END;
+
+                SELECT 'Début procédure';
+
+                    SELECT COALESCE(Race.prix, Espece.prix) INTO v_prix
+                    FROM Animal
+                    INNER JOIN Espece ON Espece.id = Animal.espece_id
+                    LEFT JOIN Race ON Race.id = Animal.race_id
+                    WHERE Animal.id = p_animal_id;
+
+                    INSERT INTO Adoption (animal_id, client_id, date_reservation, date_adoption, prix, paye)
+                    VALUES (p_animal_id, p_client_id, CURRENT_DATE(), p_date, v_prix, p_paye);
+
+                SELECT 'Fin procédure';
+        END;
+        DELIMITER ;
+
+        SET @date_adoption = CURRENT_DATE() + INTERVAL 7 DAY;
+
+        CALL ajouter_adoption_exit(12, 3, @date_adoption, 1); -- Violation unicité (animal 3 est déjà adopté)
+        
+        CALL ajouter_adoption_exit(133, 6, @date_adoption, 1); -- Violation clé étrangère (client 133 n'existe pas)
+        
+        CALL ajouter_adoption_exit(NULL, 6, @date_adoption, 1); -- Violation de contrainte NOT NULL
 
 
     -- V.6.2. Curseurs
@@ -3069,7 +3373,7 @@ SELECT id, nom, espece_id, prix FROM Race;
         -- V.6.3.3. Transactions et gestion d'erreurs
         -- V.6.3.4. Preparer une requete dans un bloc d'instructions
         -- V.6.3.5. En resumee
-        
+
 
 
 -- V.7. Trigers
