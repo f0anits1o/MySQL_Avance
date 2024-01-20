@@ -5002,6 +5002,65 @@ show tables;
                 INNER JOIN Espece ON Espece.id = Race.espece_id;
 
 
+
+        -- VI.2.3. Utilité des tables temporaires
+        -- --------------------------------------
+            -- VI.2.3.1. Gain de performance
+            -- VI.2.3.2. Tests
+            -- VI.2.3.3. Sets de résultats et procédures stockées
+
+
+            -- VI.2.3.1. Gain de performance
+            -- -----------------------------
+                CREATE TEMPORARY TABLE TMP_Adoption_chien
+                    SELECT Animal.id AS animal_id, Animal.nom AS animal_nom, Animal.date_naissance AS animal_naissance, Animal.sexe AS animal_sexe, Animal.commentaires AS animal_commentaires,
+                    Race.id AS race_id, Race.nom AS race_nom,
+                    Client.id AS client_id, Client.nom AS client_nom, Client.prenom AS client_prenom, Client.adresse AS client_adresse,
+                    Client.code_postal AS client_code_postal, Client.ville AS client_ville, Client.pays AS client_pays, Client.date_naissance AS client_naissance,
+                    Adoption.date_reservation AS adoption_reservation, Adoption.date_adoption AS adoption_adoption, Adoption.prix
+                    FROM Animal
+                        LEFT JOIN Race ON Animal.race_id = Race.id
+                        INNER JOIN Adoption ON Animal.id = Adoption.animal_id
+                        INNER JOIN Client ON Client.id = Adoption.client_id
+                    WHERE Animal.espece_id = 1;
+
+
+
+
+            -- VI.2.3.3. Sets de résultats et procédures stockées
+            --- -------------------------------------------------
+
+                # Exemple : création par une procédure d’une table temporaire stockant les adoptions qui ne
+                # sont pas en ordre de paiement.
+
+                DELIMITER |
+                CREATE PROCEDURE table_adoption_non_payee()
+                BEGIN
+                    DROP TEMPORARY TABLE IF EXISTS Adoption_non_payee;
+
+                    CREATE TEMPORARY TABLE Adoption_non_payee
+                    SELECT Client.id AS client_id, Client.nom AS client_nom, Client.prenom AS client_prenom, Client.email AS client_email,
+                    Animal.nom AS animal_nom, Espece.nom_courant AS espece, Race.nom AS race,
+                    Adoption.date_reservation, Adoption.date_adoption, Adoption.prix
+                    FROM Adoption
+                        INNER JOIN Client ON Client.id = Adoption.client_id
+                        INNER JOIN Animal ON Animal.id = Adoption.animal_id
+                        INNER JOIN Espece ON Espece.id = Animal.espece_id
+                        LEFT JOIN Race ON Race.id = Animal.race_id
+                    WHERE Adoption.paye = FALSE;
+                END ;
+                DELIMITER ;
+
+                CALL table_adoption_non_payee();
+
+                SELECT client_id, client_nom, client_prenom, animal_nom, prix
+                FROM Adoption_non_payee;
+
+            
+
+
+
+
         SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
         Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
         Espece.nom_courant AS espece_nom, Race.nom AS race_nom
