@@ -3792,8 +3792,9 @@ SELECT id, nom, espece_id, prix FROM Race;
     -- VI.1.3. Modification et suppression d'une vue
     -- VI.1.4. Utilite des vues
     -- VI.1.5. Algorithmes
-    -- VI.1.6. Modification des donnees d'une vu             SET NAMES utf8;
+    -- VI.1.6. Modification des donnees d'une vue  
 
+            SET NAMES utf8;
             DROP TABLE IF EXISTS Erreur;
             DROP TABLE IF EXISTS Animal_histo;
 
@@ -4342,7 +4343,7 @@ show tables;
                 WHERE pere_id IS NOT NULL;
 
 
-                
+
 
 
 
@@ -4465,6 +4466,226 @@ show tables;
                 SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
                 FROM Animal
                 WHERE espece_id = 1;
+
+
+    -- VI.1.6. Modification des données d’une vue
+    -- ------------------------------------------
+        -- VI.1.6.1. Conditions pour qu’une vue permette de modifier des données (requêtes UPDATE)
+        -- VI.1.6.2. Conditions pour qu’une vue permette d’insérer des données (requêtes INSERT)
+        -- VI.1.6.3. Conditions pour qu’une vue permette de supprimer des données (requêtes DELETE)
+        -- VI.1.6.4. Option de la vue pour la modification des données
+        -- VI.1.6.5. En résumé
+
+
+        -- VI.1.6.1. Conditions pour qu’une vue permette de modifier des données (requêtes UPDATE)
+        -- ---------------------------------------------------------------------------------------
+            -- VI.1.6.1.1. Jointures
+            -- VI.1.6.1.2. Algorithme
+            -- VI.1.6.1.3. Autres conditions
+            
+            
+            -- VI.1.6.1.1. Jointures
+            -- ---------------------
+
+            desc V_Animal_details; 
+
+            select * from V_animal_details where id = 21;
+            -- Modifie Animal
+            UPDATE V_Animal_details
+            SET commentaires = 'Rhume chronique'
+            WHERE id = 21;
+
+            -- Modifie Race
+            UPDATE V_Animal_details
+            SET race_nom = 'Maine Coon'
+            WHERE race_nom = 'Maine coon';          
+            -- Erreur
+            UPDATE V_Animal_details
+            SET commentaires = 'Vilain oiseau', espece_nom = 'Perroquet pas beau' -- commentaires vient de Animal, et  espece_nom vient de Espece
+            WHERE espece_id = 4;
+
+        
+
+            -- VI.1.6.1.2. Algorithme
+            -- ----------------------
+            UPDATE V_Nombre_espece
+            SET nb = 6
+            WHERE id = 4;
+
+
+
+
+
+
+        -- VI.1.6.2. Conditions pour qu’une vue permette d’insérer des données (requêtes INSERT)
+        -- ------------------------------------------------------------------------------------
+            -- VI.1.6.2.1. Valeurs par défaut
+            -- VI.1.6.2.2. Jointures
+            -- VI.1.6.2.3. Expressions
+            -- VI.1.6.2.4. Colonnes dupliquées
+
+
+            -- VI.1.6.2.1. Valeurs par défaut
+            -- ------------------------------
+                INSERT INTO V_Animal_stagiaire (nom, sexe, date_naissance, espece_id, race_id)
+                VALUES ('Rocco', 'M', '2012-03-12', 1, 9);
+
+                CREATE VIEW V_Animal_mini
+                AS SELECT id, nom, sexe, espece_id
+                FROM Animal;
+
+                INSERT INTO V_Animal_mini(nom, sexe, espece_id)
+                VALUES ('Toxi', 'F', 1);
+
+            
+            -- VI.1.6.2.2. Jointures
+                INSERT INTO V_Animal_details (espece_nom, espece_nom_latin) VALUES ('Perruche terrestre', 'Pezoporus wallicus');
+
+
+                CREATE OR REPLACE VIEW V_Animal_espece
+                AS SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
+                Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
+                Espece.nom_courant AS espece_nom, Espece.nom_latin AS espece_nom_latin
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id;
+
+                INSERT INTO V_Animal_espece (espece_nom, espece_nom_latin)
+                VALUES ('Perruche terrestre', 'Pezoporus wallicus');
+
+
+            -- VI.1.6.2.3. Expressions
+            -- -----------------------
+                INSERT INTO V_Espece_dollars (nom_courant, nom_latin, prix_dollars) 
+                VALUES ('Perruche terrestre', 'Pezoporus wallicus', 30);
+
+
+            -- VI.1.6.2.4. Colonnes dupliquées
+            -- -------------------------------
+                # Exemple
+                # Si l’on crée une vue avec deux fois la même colonne référencée, il est possible de modifier des
+                # données à partir de celle-ci, mais pas d’en insérer  
+                
+                CREATE VIEW V_Espece_2noms
+                AS SELECT id, nom_courant, nom_latin, description, prix, nom_courant AS nom2 
+                -- nom_courant est référencé deux fois
+                FROM Espece;
+
+                -- Modification, pas de problème
+                UPDATE V_Espece_2noms
+                SET description= 'Joli oiseau aux plumes majoritairement vert brillant', prix = 20.00
+                WHERE nom_courant = 'Perruche terrestre';
+
+                -- Insertion, impossible
+                INSERT INTO V_Espece_2noms (nom_courant, nom_latin, prix)
+                VALUES ('Perruche turquoisine', 'Neophema pulchella', 40);
+
+
+
+        -- VI.1.6.3. Conditions pour qu’une vue permette de supprimer des données (requêtes DELETE)  
+        -- ----------------------------------------------------------------------------------------
+            # lesona
+
+
+        -- VI.1.6.4. Option de la vue pour la modification des données
+        -- -----------------------------------------------------------
+
+            -- VI.1.6.4.1. LOCAL ou CASCADED
+
+
+                -- Syntaxe
+                    CREATE [OR REPLACE]
+                    [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
+                    VIEW nom_vue [(liste_colonnes)]
+                    AS requete_select
+                    [WITH [CASCADED | LOCAL] CHECK OPTION]
+                -- Fin syntaxe
+
+                # Exemples
+                # Si la vue V_Animal_stagiaire (qui, pour rappel, sélectionne les chats uniquement) est définie
+                # avec WITH CHECK OPTION, on ne peut pas modifier l’espece_id à partir de cette vue.
+
+                CREATE OR REPLACE VIEW V_Animal_stagiaire
+                AS SELECT id, nom, sexe, date_naissance, espece_id, race_id, mere_id, pere_id, disponible
+                FROM Animal
+                WHERE espece_id = 2
+                WITH CHECK OPTION;
+
+                # En effet, cette vue est définie avec la condition WHERE espece_id = 2. Les modifications faites
+                # sur les données de cette vue doivent respecter cette condition.
+
+                UPDATE V_Animal_stagiaire
+                SET espece_id = 1
+                WHERE nom = 'Cracotte';
+
+                # De même, l’insertion d’un animal dont l’espece_id n’est pas 2 sera refusée aussi.
+
+                INSERT INTO V_Animal_stagiaire (sexe, date_naissance, espece_id, nom)
+                VALUES ('F', '2011-09-21 15:14:00', 2, 'Bambi'); -- c'est un chat, pas de problème
+
+                INSERT INTO V_Animal_stagiaire (sexe, date_naissance, espece_id, nom)
+                VALUES ('M', '2011-03-11 05:54:00', 6, 'Tiroli'); -- c'est une perruche, impossible
+
+            
+            -- VI.1.6.4.1. LOCAL ou CASCADED
+            -- -----------------------------
+
+                # — LOCAL : seules les conditions de la vue même sont vérifiées.
+                # — CASCADED : les conditions des vues sous-jacentes éventuelles sont également vérifiées.
+                # C’est l’option par défaut.
+
+
+                -- Exemple 1 : LOCAL
+                CREATE OR REPLACE VIEW V_Chien_race
+                AS SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
+                FROM V_Chien
+                WHERE race_id IS NOT NULL
+                WITH LOCAL CHECK OPTION;
+
+                -- Modification --
+                -- ------------ --
+                UPDATE V_Chien_race
+                SET race_id = NULL -- Ne respecte pas la condition de V_Chien_race
+                WHERE nom = 'Zambo'; -- => Impossible
+
+                UPDATE V_Chien_race
+                SET espece_id = 2, race_id = 4 -- Ne respecte pas la condition de V_Chien
+                WHERE nom = 'Java'; -- => possible puisque LOCAL CHECKOPTION
+
+                -- Insertion --
+                -- --------- --
+                INSERT INTO V_Chien_race (sexe, date_naissance, nom, commentaires, espece_id, race_id)
+                -- Respecte toutes les  conditions
+                VALUES ('M', '2012-02-28 03:05:00', 'Pumba','Prématuré, à surveiller', 1, 9); -- => Pas deproblèm
+
+                INSERT INTO V_Chien_race (sexe, date_naissance, nom, commentaires,espece_id, race_id) 
+                -- La race n'est pas NULL, mais c'est un chat
+                VALUES ('M', '2011-05-24 23:51:00', 'Lion', NULL, 2, 5); -- => pas de problème puisque LOCAL
+
+                INSERT INTO V_Chien_race (sexe, date_naissance, nom, commentaires, espece_id, race_id) 
+                -- La colonne race_id est NULL
+                VALUES ('F', '2010-04-28 13:01:00', 'Mouchou', NULL, 1, NULL);
+                -- => impossible
+
+               # Exemple 2 : CASCADED
+                CREATE OR REPLACE VIEW V_Chien_race
+                AS SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
+                FROM V_Chien
+                WHERE race_id IS NOT NULL
+                WITH CASCADED CHECK OPTION;
+                
+                UPDATE V_Chien_race
+                SET race_id = NULL -- Ne respecte pas la condition de V_Chien_race
+                WHERE nom = 'Zambo'; -- => impossible
+                
+                UPDATE V_Chien_race
+                SET espece_id = 2, race_id = 4 -- Ne respecte pas la condition deV_Chien
+                WHERE nom = 'Fila'; -- => impossible aussi puisque CASCADED
+
+ 
+
+
+
+
 
 
 
