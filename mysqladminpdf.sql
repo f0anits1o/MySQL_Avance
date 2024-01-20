@@ -1,4 +1,4 @@
--- Active: 1705580508033@@127.0.0.1@3306@mysqladminpdf
+-- Active: 1705758686208@@127.0.0.1@3306@mysqladminpdf
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -5351,3 +5351,148 @@ show tables;
 
             # lesona be
 
+
+#############################################################
+#                                                           #
+#                  Septième partie                          #
+#    Gestion des utilisateurs et configuration du serveur   #           
+#                                                           #
+#############################################################
+
+
+-- VII. Gestion des utilisateurs et configuration du serveur
+-- ---------------------------------------------------------
+
+    -- VII.1. Gestion des utilisateurs
+    -- VII.2. Information sur la base de donnee et les requetes
+    -- VII.3. Configuration et OPTIONS
+    -- VII.4. Aller plus loin
+
+
+    -- VII.1. Gestion des utilisateurs
+    -- -------------------------------
+        -- VII.1.1. Introduction
+        -- VII.1.2. creation, modification et suppression des utilisateurs
+        -- VII.1.3. Les privileges - introductions
+        -- VII.1.4. Ajout et revocation de privilege
+        -- VII.1.5. Privileges particuliers
+        -- VII.1.6. Options supplementaires
+
+
+        -- VII.1.1. Introduction
+        -- ---------------------
+            -- VII.1.1.1. Les Utilisateurs et leurs privileges
+        
+
+
+
+        -- VII.1.2. creation, modification et suppression des utilisateurs
+        -- ---------------------------------------------------------------
+            -- VII.1.2.1. Creation, modification et supression
+            -- VII.1.2.2. Syntaxe
+            -- VII.1.2.3. Utilisateur
+            -- VII.1.2.4. Mot de passe
+
+
+
+
+
+        -- VII.1.3. Les privileges - introductions
+        -- ---------------------------------------
+            -- VII.1.3.1. Les differents privileges
+            -- VII.1.3.2. Les differents niveaux d'application des privileges
+
+
+
+
+        -- VII.1.4. Ajout et revocation de privilege
+        -- -----------------------------------------
+            -- VII.1.4.1. Ajout de privileges;
+            -- VII.1.4.2. Revocation de privileges 
+
+
+
+
+        -- VII.1.5. Privileges particuliers
+        -- --------------------------------
+            -- VII.1.5.1. Les privileges All, Usage, Grant OPTION
+            -- VII.1.5.2. Particularite des triggers, vues et procedures stockees
+        
+
+
+    
+
+        -- VII.1.6. Options supplementaires
+        -- --------------------------------
+            -- VII.1.6.1. Limitation des ressources
+            -- VII.1.6.2. Connexion SSL
+            -- VII.1.6.3. En resume
+
+
+    -- VII.2. Information sur la base de donnee et les requetes
+    -- --------------------------------------------------------
+        -- VII.2.1. commande de description
+        -- VII.2.2. la base de donnee information_schema
+        -- VII.2.3. Deroulement d'une requete de selection
+
+
+        -- VII.2.1. commande de description
+        -- --------------------------------
+            -- VII.2.1.1. Description d'objets
+            -- VII.2.1.2. Requete de creation d'un objet
+        
+
+
+        -- VII.2.2. la base de donnee information_schema
+
+
+
+
+        -- VII.2.3. Deroulement d'une requete de selection
+        -- -----------------------------------------------
+            -- VII.2.3.1. En resume
+
+
+
+    -- VII.3. Configuration et OPTIONS
+    -- -------------------------------
+        -- VII.3.1. Variable systeme
+        -- VII.3.2. Modification des variables systeme avec SET
+        -- VII.3.3. Options au demarage du client MYSQL
+        -- VII.3.4. Options au demmarage du serveur mysqld
+        -- VII.3.5. Fichier de configuration
+
+
+        -- VII.3.1. Variable systeme
+        -- -------------------------
+            -- VII.3.1.1. Niveau des variables systeme
+        
+    
+
+
+        -- VII.3.2. Modification des variables systeme avec SET
+        -- ----------------------------------------------------
+            -- VII.3.2.1. Effet de la modification selon le niveau
+            -- VII.3.2.2. Les commandes SET speciales
+
+
+
+        -- VII.3.3. Options au demarage du client MYSQL
+        -- --------------------------------------------
+
+
+
+
+
+        -- VII.3.4. Options au demmarage du serveur mysqld
+        -- -----------------------------------------------
+
+
+
+
+
+        -- VII.3.5. Fichier de configuration
+        -- ---------------------------------
+            -- VII.3.5.1. Emplacement du fichier
+            -- VII.3.5.2. Structure du fichier
+            -- VII.3.5.3. En resume
