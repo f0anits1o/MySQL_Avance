@@ -4672,26 +4672,16 @@ show tables;
                 FROM V_Chien
                 WHERE race_id IS NOT NULL
                 WITH CASCADED CHECK OPTION;
-                
+
                 UPDATE V_Chien_race
                 SET race_id = NULL -- Ne respecte pas la condition de V_Chien_race
                 WHERE nom = 'Zambo'; -- => impossible
-                
+
                 UPDATE V_Chien_race
                 SET espece_id = 2, race_id = 4 -- Ne respecte pas la condition deV_Chien
                 WHERE nom = 'Fila'; -- => impossible aussi puisque CASCADED
 
  
-
-
-
-
-
-
-
-
-
-
 -- VI.2. Table temporaires
 -- -----------------------
     -- VI.2.1. Principe, regles et comportement
@@ -4701,6 +4691,151 @@ show tables;
     
 
     -- VI.2.1. Principe, regles et comportement
+    -- ----------------------------------------
+        -- VI.2.1.1. Création, modification, suppression d’une table temporaire
+        -- VI.2.1.2. Utilisation des tables temporaires
+        -- VI.2.1.3. Cache-cache table
+        -- VI.2.1.4. Restrictions des tables temporaires
+        -- VI.2.1.5. Interaction avec les transactions
+
+
+        -- VI.2.1.1. Création, modification, suppression d’une table temporaire
+        -- --------------------------------------------------------------------
+            -- VI.2.1.1.1. Création
+            -- VI.2.1.1.2. Modification
+            -- VI.2.1.1.3. Suppression
+
+
+            -- VI.2.1.1.1. Création
+            -- ---------------------
+
+                # Exemple : création d’une table temporaire TMP_Animal.
+
+                CREATE TEMPORARY TABLE TMP_Animal (
+                id INT UNSIGNED PRIMARY KEY,
+                nom VARCHAR(30),
+                espece_id INT UNSIGNED,
+                sexe CHAR(1)
+                );
+
+                DESCRIBE TMP_Animal;
+
+
+            -- VI.2.1.1.2. Modification
+            -- ------------------------
+                # Exemple : ajout d’une colonne à TMP_Animal.
+                ALTER TABLE TMP_Animal
+                ADD COLUMN date_naissance DATETIME;
+
+
+            -- VI.2.1.1.3. Suppression:
+            -- -----------------------
+                #Exemple : suppression de TMP_Animal, qui n’aura pas fait long feu.
+                DROP TEMPORARY TABLE TMP_Animal;
+
+
+        -- VI.2.1.2. Utilisation des tables temporaires
+        -- --------------------------------------------
+            # Lesona
+
+        
+        -- VI.2.1.3. Cache-cache table
+        -- ---------------------------
+
+            # Exemple : création d’une table temporaire nommée Animal.
+            # On commence par sélectionner les perroquets de la table Animal (la table normale, puisqu’on
+            # n’a pas encore créé la table temporaire). On obtient quatre résultats.        
+
+
+            SELECT id, sexe, nom, commentaires, espece_id
+            FROM Animal
+            WHERE espece_id = 4;
+
+            # On crée ensuite la table temporaire, et on y insère un animal avec espece_id = 4. On refait la
+            # même requête de sélection, et on obtient uniquement l’animal que l’on vient d’insérer, avec la
+            # structure de la table temporaire.
+
+
+            CREATE TEMPORARY TABLE Animal (
+            id INT UNSIGNED PRIMARY KEY,
+            nom VARCHAR(30),
+            espece_id INT UNSIGNED,
+            sexe CHAR(1)
+            );
+
+            INSERT INTO Animal
+            VALUES (1, 'Tempo', 4, 'M');
+
+            SELECT *
+            FROM Animal
+            WHERE espece_id = 4;
+
+            DROP TEMPORARY TABLE Animal;
+
+            select id, sexe, nom, commentaires, espece_id from animal where espece_id = 4;
+
+
+        -- VI.2.1.4. Restrictions des tables temporaires
+
+            #Exemples : on recrée une table TMP_Animal, un peu plus complexe cette fois, qu’on remplit
+            #avec les chats de la table Animal.
+
+            CREATE TEMPORARY TABLE TMP_Animal (
+            id INT UNSIGNED PRIMARY KEY,
+            nom VARCHAR(30),
+            espece_id INT UNSIGNED,
+            sexe CHAR(1),
+            mere_id INT UNSIGNED,
+            pere_id INT UNSIGNED
+            );
+            
+            INSERT INTO TMP_Animal
+            SELECT id, nom, espece_id, sexe, mere_id, pere_id
+            FROM Animal
+            WHERE espece_id = 2;
+
+            # 1. Référence n’est pas occurrence
+                SELECT TMP_Animal.nom, TMP_Animal.sexe
+                FROM TMP_Animal
+                WHERE nom LIKE 'B%';
+
+                select * from Tmp_animal;
+
+            # 2. Auto-jointure
+
+                SELECT TMP_Animal.nom, TMP_Pere.nom AS pere
+                FROM TMP_Animal
+                INNER JOIN TMP_Animal AS TMP_Pere
+                ON TMP_Animal.pere_id = TMP_Pere.id;
+
+                # Cette fois, cela ne fonctionne pas : on extrait en effet des données de TMP_Animal, et de
+                # TMP_Animal AS TMP_Pere
+
+            # 3. Sous-requête
+                SELECT nom
+                FROM TMP_Animal
+                WHERE id IN (SELECT pere_id FROM TMP_Animal);
+
+                # À nouveau, on extrait des données de TMP_Animal à deux endroits différents : dans la requête
+                # et dans la sous-requête. Cela ne peut pas fonctionner.
+
+
+        -- VI.2.1.5. Interaction avec les transactions
+        -- -------------------------------------------
+
+           -- Exemple
+            START TRANSACTION;
+
+            INSERT INTO Espece (nom_courant, nom_latin)
+            VALUES ('Gerbille de Mongolie', 'Meriones unguiculatus');
+
+            CREATE TEMPORARY TABLE TMP_Test (id INT);
+
+            ROLLBACK;
+
+            SELECT id, nom_courant, nom_latin, prix FROM Espece;
+            SELECT * FROM TMP_Test;
+
         SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
         Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
         Espece.nom_courant AS espece_nom, Race.nom AS race_nom
