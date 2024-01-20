@@ -4337,6 +4337,14 @@ show tables;
                 FROM Espece;
 
 
+                SELECT nom, date_naissance
+                FROM table_temporaire
+                WHERE pere_id IS NOT NULL;
+
+
+                
+
+
 
         -- VI.1.3.2. Suppression
         -- ---------------------
@@ -4410,7 +4418,55 @@ show tables;
 
             select * from v_animal_stagiaire;
 
-            
+        
+        -- VI.1.5. Algorithmes
+        -- -------------------
+            -- VI.1.5.1. MERGE
+            -- VI.1.5.2. TEMPTABLE
+
+
+            -- VI.1.5.1. MERGE
+            -- ---------------
+
+                # Exemple 1
+                SELECT *
+                FROM V_Animal_details
+                WHERE MONTH(date_naissance) = 6;
+
+                SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
+                Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
+                Espece.nom_courant AS espece_nom, Race.nom AS race_nom
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                LEFT JOIN Race ON Animal.race_id = Race.id
+                WHERE MONTH(date_naissance) = 6;
+
+
+                # Exemple 2
+                # Si l’on exécute la requête suivante sur la vue V_Chien, et que l’algorithme MERGE est utilisé :
+
+                SELECT nom, date_naissance
+                FROM V_Chien
+                WHERE pere_id IS NOT NULL;
+
+                SELECT nom, date_naissance
+                FROM Animal
+                WHERE espece_id = 1
+                AND pere_id IS NOT NULL;
+
+
+            -- VI.1.5.2. TEMPTABLE
+            -- -------------------
+                SELECT nom, date_naissance
+                FROM V_Chien
+                WHERE pere_id IS NOT NULL;
+
+
+                SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
+                FROM Animal
+                WHERE espece_id = 1;
+
+
 
 
 
