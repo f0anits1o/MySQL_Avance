@@ -4122,7 +4122,157 @@ SELECT id, nom, espece_id, prix FROM Race;
             WHERE race_id = OLD.id;
             END ;
             
-            DELIMITER ;            
+            DELIMITER ;   
+
+    -- VI.1.1. Creation d'une vue
+    -- --------------------------
+        -- VI.1.1.1. Le principe
+        -- VI.1.1.2. Création
+        -- VI.1.1.3. Les colonnes de la vue
+        -- VI.1.1.4. Requête SELECT stockée dans la vue
+        
+
+        -- VI.1.1.1. Le principe
+        -- ---------------------
+            SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
+            Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
+            Espece.nom_courant AS espece_nom, Race.nom AS race_nom
+            FROM Animal
+            INNER JOIN Espece ON Animal.espece_id = Espece.id
+            LEFT JOIN Race ON Animal.race_id = Race.id;
+         
+
+        -- VI.1.1.2. Création
+        -- ------------------
+
+            -- syntaxe
+            CREATE [OR REPLACE] VIEW nom_vue
+            AS requete_select;
+
+            CREATE VIEW V_Animal_details
+            AS SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
+            Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
+            Espece.nom_courant AS espece_nom, Race.nom AS race_nom
+            FROM Animal
+            INNER JOIN Espece ON Animal.espece_id = Espece.id
+            LEFT JOIN Race ON Animal.race_id = Race.id;
+
+            SELECT * FROM V_Animal_details;
+
+
+########################################################################################################
+#                                           CONVENTION                                                 #
+#                                                                                                      #
+#      J’ai préfixé le nom de la vue par ”V_”. Il s’agit d’une convention que je vous conseille        #
+#      fortement de respecter. Cela permet de savoir au premier coup d’œil si l’on travaille avec      #
+#      une vraie table, ou avec une vue.                                                               #
+#                                                                                                      #
+########################################################################################################
+
+show tables;
+
+
+        -- VI.1.1.3. Les colonnes de la vue
+        -- --------------------------------
+            -- VI.1.1.3.1. Lister les colonnes dans CREATE VIEW
+            -- VI.1.1.3.2. Doublons interdits
+
+            describe V_animal_details;
+
+
+            -- VI.1.1.3.1. Lister les colonnes dans CREATE VIEW
+            -- ------------------------------------------------
+                drop VIEW v_animal_details;
+
+                CREATE VIEW V_Animal_details (id, sexe, date_naissance, nom, commentaires, espece_id, race_id,mere_id, pere_id, disponible, espece_nom, race_nom)
+                AS SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
+                Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
+                Espece.nom_courant, Race.nom
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                LEFT JOIN Race ON Animal.race_id = Race.id;
+
+
+            -- VI.1.1.3.2. Doublons interdits
+            -- ------------------------------
+            CREATE VIEW V_test
+            AS SELECT Animal.id, Espece.id
+            FROM Animal
+            INNER JOIN Espece ON Animal.espece_id = Espece.id;
+
+
+
+        -- VI.1.1.4. Requête SELECT stockée dans la vue
+        -- --------------------------------------------
+            -- VI.1.1.4.1. La requête SELECT est ”figée”
+            -- VI.1.1.4.2. Tri des données directement dans la vue
+            -- VI.1.1.4.3. Comportement d’autres clauses de SELECT
+
+            # Exemple 1 : une vue pour les chiens
+            CREATE VIEW V_Chien
+            AS SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
+            FROM Animal
+            WHERE espece_id = 1;
+
+
+            # Exemple 2 : combien de chats possédons-nous ?
+            CREATE OR REPLACE VIEW V_Nombre_espece
+            AS SELECT Espece.id, COUNT(Animal.id) AS nb
+            FROM Espece
+            LEFT JOIN Animal ON Animal.espece_id = Espece.id
+            GROUP BY Espece.id;
+
+
+            # Exemple 3 : vue sur une vue
+            CREATE OR REPLACE VIEW V_Chien_race
+            AS SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
+            FROM V_Chien
+            WHERE race_id IS NOT NULL;
+
+
+            # Exemple 4 : expression dans une vue.
+            CREATE VIEW V_Espece_dollars
+            AS SELECT id, nom_courant, nom_latin, description, ROUND(prix*1.31564, 2) AS prix_dollars
+            FROM Espece;
+
+
+
+            -- VI.1.1.4.1. La requête SELECT est ”figée”
+            -- ----------------------------------------
+
+                # Par exemple, si l’on crée une vue V_Client toute simple.
+
+
+                CREATE VIEW V_Client
+                AS SELECT *
+                FROM Client;
+
+                #Exemple : ajout d’une colonne date_naissance à la table Client.
+
+                ALTER TABLE Client ADD COLUMN date_naissance DATE;
+
+                DESCRIBE V_Client;
+
+
+            -- VI.1.1.4.2. Tri des données directement dans la vue
+            -- ---------------------------------------------------
+            
+            -- Exemple
+            CREATE OR REPLACE VIEW V_Race
+            AS SELECT Race.id, nom, Espece.nom_courant AS espece
+            FROM Race
+            INNER JOIN Espece ON Espece.id = Race.espece_id
+            ORDER BY nom;
+
+            SELECT *
+            FROM V_Race; -- Sélection sans ORDER BY, on prend l'ORDER BY de la définition
+
+            SELECT *
+            FROM V_Race
+            ORDER BY espece; -- Sélection avec ORDER BY, c'est celui-là qui sera pris en compte
+            
+
+
 
 -- VI.2. Table temporaires
 -- -----------------------
@@ -4130,6 +4280,7 @@ SELECT id, nom, espece_id, prix FROM Race;
     -- VI.2.2. Methodes alternatives de creation des tables
     -- VI.2.3. Utilite des tables temporaires
 
+    
 
     -- VI.2.1. Principe, regles et comportement
         SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
