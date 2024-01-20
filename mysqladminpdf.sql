@@ -4202,6 +4202,8 @@ show tables;
 
 
 
+
+
         -- VI.1.1.4. Requête SELECT stockée dans la vue
         -- --------------------------------------------
             -- VI.1.1.4.1. La requête SELECT est ”figée”
@@ -4271,6 +4273,145 @@ show tables;
             FROM V_Race
             ORDER BY espece; -- Sélection avec ORDER BY, c'est celui-là qui sera pris en compte
             
+
+    -- VI.1.2. Sélection des données d’une vue
+    -- ---------------------------------------
+
+        # Exemple 1 : on sélectionne les rats bruns à partir de la vue V_Animal_details.
+
+        SELECT id, nom, espece_nom, date_naissance, commentaires, disponible
+        FROM V_Animal_details
+        WHERE espece_nom = 'Rat brun';
+
+        # Exemple 2 : on sélectionne le nombre d’animaux par espèce avec la vue V_Nombre_espece, en ajoutant une jointure sur la table Espece pour avoir le nom des espèces en plus de leur id.
+
+        SELECT V_Nombre_espece.id, Espece.nom_courant, V_Nombre_espece.nb
+        FROM V_Nombre_espece
+        INNER JOIN Espece ON Espece.id = V_Nombre_espece.id;
+
+        show tables;
+        desc v_nombre_espece;
+
+        # Exemple 3 : on sélectionne le nombre de chiens qu’on possède pour chaque race, en utilisant un regroupement sur la vue V_Chien_race, avec jointure sur Race pour avoir le nom de la race.
+        SELECT Race.nom, COUNT(V_Chien_race.id)
+        FROM Race
+        INNER JOIN V_Chien_race ON Race.id = V_Chien_race.race_id
+        GROUP BY Race.nom;
+
+
+    -- VI.1.3. Modification et suppression d’une vue
+    -- ---------------------------------------------
+        -- VI.1.3.1. Modification
+        -- VI.1.3.2. Suppression
+
+
+        -- VI.1.3.1. Modification
+        -- ----------------------
+            -- VI.1.3.1.1. CREATE OR REPLACE
+            -- VI.1.3.1.2. ALTER
+
+            
+            -- VI.1.3.1.1. CREATE OR REPLACE
+            -- -----------------------------
+
+                CREATE OR REPLACE VIEW V_Espece_dollars
+                AS SELECT id, nom_courant, nom_latin, description, ROUND(prix*1.30813, 2) AS prix_dollars
+                FROM Espece;
+
+
+
+            -- VI.1.3.1.2. ALTER
+            -- -----------------
+                -- syntaxe
+                ALTER VIEW nom_vue [(liste_colonnes)]
+                AS requete_select
+
+                -- Exemples : les deux requêtes suivantes ont exactement le même effet : on modifie la vue V_espece_dollars pour mettre à jour le taux de change du dollar.
+
+                CREATE OR REPLACE VIEW V_Espece_dollars
+                AS SELECT id, nom_courant, nom_latin, description, ROUND(prix*1.30813, 2) AS prix_dollars
+                FROM Espece;
+                
+                ALTER VIEW V_Espece_dollars
+                AS SELECT id, nom_courant, nom_latin, description, ROUND(prix*1.30813, 2) AS prix_dollars
+                FROM Espece;
+
+
+
+        -- VI.1.3.2. Suppression
+        -- ---------------------
+            # Exemple : suppression de V_Race.
+            DROP VIEW V_Race;
+
+
+    -- VI.1.4. Utilité des vues
+    -- ------------------------
+        -- VI.1.4.1. Clarification et facilitation des requêtes
+        -- VI.1.4.2. Création d’une interface entre l’application et la base de données
+        -- VI.1.4.3. Restriction des données visibles par les utilisateurs
+
+
+        -- VI.1.4.1. Clarification et facilitation des requêtes
+        -- ----------------------------------------------------
+
+        # Exemple : on veut savoir quelles espèces rapportent le plus, année après année. Comme c’est
+        # une question importante pour le développement de l’élevage, et qu’elle reviendra souvent, on
+        # crée une vue, que l’on pourra interroger facilement.ADD
+
+            CREATE OR REPLACE VIEW V_Revenus_annee_espece
+            AS SELECT YEAR(date_reservation) AS annee, Espece.id AS espece_id, SUM(Adoption.prix) AS somme, COUNT(Adoption.animal_id) AS nb
+            FROM Adoption
+            INNER JOIN Animal ON Animal.id = Adoption.animal_id
+            INNER JOIN Espece ON Animal.espece_id = Espece.id
+            GROUP BY annee, Espece.id;
+
+            select * from V_Revenus_annee_espece;
+
+            # 1. Les revenus obtenus par année
+            SELECT annee, SUM(somme) AS total
+            FROM V_Revenus_annee_espece
+            GROUP BY annee;
+
+            # 2. Les revenus obtenus pour chaque espece, toutes annees confondues
+            SELECT Espece.nom_courant AS espece, SUM(somme) AS total
+            FROM V_Revenus_annee_espece
+            INNER JOIN Espece ON V_Revenus_annee_espece.espece_id = Espece.id
+            GROUP BY espece;
+
+            # 3. Les revenus moyens generes par la vente d'un individu de l'espece
+            SELECT Espece.nom_courant AS espece, SUM(somme)/SUM(nb) AS moyenne
+            FROM V_Revenus_annee_espece
+            INNER JOIN Espece ON V_Revenus_annee_espece.espece_id = Espece.id
+            GROUP BY espece;
+
+
+        -- VI.1.4.2. Création d’une interface entre l’application et la base de données
+        -- ----------------------------------------------------------------------------
+
+        CREATE OR REPLACE VIEW V_Client -- le OR REPLACE indispensable (ou on utilise ALTER VIEW)
+        AS SELECT Client.id, nom, prenom, rue_numero AS adresse, code_postal, ville, pays, email, date_naissance
+        FROM Client
+        LEFT JOIN Adresse ON Client.adresse_id = Adresse.id; -- LEFT JOIN au cas où certains clients n'auraient pas d'adresse définie
+        show tables; -- Tsy mexiste io table adresse io.
+
+
+        -- VI.1.4.3. Restriction des données visibles par les utilisateurs
+        -- ---------------------------------------------------------------
+
+            # Exemple
+            # Le stagiaire travaillant dans notre élevage s’occupe exclusivement des chats, et ne doit pas avoir
+            # accès aux commentaires. On ne lui donne donc pas accès à la table Animal, mais à une vue
+            # V_Animal_stagiaire créée de la manière suivante 
+
+            CREATE VIEW V_Animal_stagiaire
+            AS SELECT id, nom, sexe, date_naissance, espece_id, race_id, mere_id, pere_id, disponible
+            FROM Animal
+            WHERE espece_id = 2;
+
+            select * from v_animal_stagiaire;
+
+            
+
 
 
 
