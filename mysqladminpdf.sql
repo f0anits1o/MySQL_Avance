@@ -4780,6 +4780,8 @@ show tables;
             #Exemples : on recrée une table TMP_Animal, un peu plus complexe cette fois, qu’on remplit
             #avec les chats de la table Animal.
 
+            DROP TABLE Animal_copy;
+
             CREATE TEMPORARY TABLE TMP_Animal (
             id INT UNSIGNED PRIMARY KEY,
             nom VARCHAR(30),
@@ -4835,6 +4837,170 @@ show tables;
 
             SELECT id, nom_courant, nom_latin, prix FROM Espece;
             SELECT * FROM TMP_Test;
+
+
+    -- VI.2.2. Methodes alternatives de creation des tables
+    -- ----------------------------------------------------
+        -- VI.2.2.1. Créer une table à partir de la structure d’une autre
+        -- VI.2.2.2. Créer une table à partir de données sélectionnées
+
+
+        -- VI.2.2.1. Créer une table à partir de la structure d’une autre
+        -- --------------------------------------------------------------
+                -- VI.2.2.1.1. Tables temporaires
+
+
+                # Il est possible de creer la copie d'une table, en utilisant la commande suivante:
+                CREATE [TEMPORARY] TABLE nouvelle_table LIKE ancienne_table;
+
+
+                # Exemple: reproduction de la table Espece
+
+                CREATE TABLE Espece_copy
+                LIKE Espece;
+
+                DESCRIBE Espece;
+
+                DESCRIBE Espece_copy;
+
+                # Ensuite, pour remplir la nouvelle table avec tout ou partie des données de la table d’origine, il
+                # suffit d’utiliser la commande INSERT INTO ... SELECT.
+                # Exemple
+
+                INSERT INTO Espece_copy
+                SELECT * FROM Espece
+                WHERE prix < 100;
+
+                SELECT id, nom_courant, prix
+                FROM Espece_copy;
+
+
+            -- VI.2.2.1.1. Tables temporaires
+            -- ------------------------------
+                # Exemple : copie de la table Animal
+                CREATE TEMPORARY TABLE Animal_copy
+                LIKE Animal;
+
+                INSERT INTO Animal (nom, sexe, date_naissance, espece_id)
+                VALUES ('Mutant', 'M', NOW(), 12);
+
+                INSERT INTO Animal_copy (nom, sexe, date_naissance, espece_id)
+                VALUES ('Mutant', 'M', NOW(), 12);
+
+                # Aucune espèce n’a 12 pour id, l’insertion dans Animal échoue donc à cause de la clé étrangère.
+                # Par contre, dans la table temporaire Animal_copy, l’insertion réussit.
+
+        
+        
+        -- VI.2.2.2. Créer une table à partir de données sélectionnées 
+        -- -----------------------------------------------------------
+            -- VI.2.2.2.1. Forcer le type des colonnes
+            -- VI.2.2.2.2. Nom des colonnes
+            -- VI.2.2.2.3. Réunir les données de plusieurs tables
+
+
+                # Exemple : suppression puis recréation d’une table temporaire Animal_copy contenant tous les
+                # rats de la table Animal.
+
+                DROP TABLE Animal_copy;
+
+                CREATE TEMPORARY TABLE Animal_copy
+                SELECT *
+                FROM Animal
+                WHERE espece_id = 5;
+
+                DESCRIBE Animal;
+
+                DESCRIBE Animal_copy;
+
+
+            -- VI.2.2.2.1. Forcer le type des colonnes
+            -- ---------------------------------------
+
+                # Exemple : recréation d’Animal_copy, en modifiant quelques types et attributs
+
+                DROP TABLE Animal_copy;
+
+                CREATE TEMPORARY TABLE Animal_copy (
+                id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+                sexe CHAR(1),
+                date_naissance DATETIME,
+                nom VARCHAR(100),
+                commentaires TEXT,
+                espece_id INT NOT NULL,
+                race_id INT,
+                mere_id INT,
+                pere_id INT,
+                disponible BOOLEAN DEFAULT TRUE,
+                INDEX (nom(10))
+                ) ENGINE=InnoDB;
+
+                SELECT *
+                FROM Animal
+                WHERE espece_id = 5;
+
+                DESCRIBE Animal_copy;
+
+        
+        -- VI.2.2.2.2. Nom des colonnes
+        -- ----------------------------
+
+            # Exemple : on recrée Animal_copy, mais les noms des colonnes sont dans le désordre, et certains
+            # ne correspondent pas à la requête SELECT.
+
+            DROP TABLE Animal_copy;
+
+            CREATE TEMPORARY TABLE Animal_copy (
+                id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+                nom VARCHAR(100), -- Ordre différent de la requête SELECT
+                sexe CHAR(1),
+                espece_id INT NOT NULL, -- Ordre différent de la requête SELECT
+                date_naissance DATETIME,
+                commentaires TEXT,
+                race_id INT,
+                maman_id INT, -- Nom de colonne différent de la requête SELECT
+                papa_id INT, -- Nom de colonne différent de la requête SELECT
+                disponible BOOLEAN DEFAULT TRUE,
+                INDEX (nom(10))
+                ) ENGINE=InnoDB
+                SELECT id, sexe, date_naissance, nom, commentaires, espece_id, race_id, mere_id, pere_id, disponible
+                FROM Animal
+                WHERE espece_id = 5;
+
+                DESCRIBE Animal_copy;
+
+
+                SELECT maman_id, papa_id, id, sexe, nom, espece_id, mere_id, pere_id FROM Animal_copy;
+
+                # Exemple : Recréation d’Animal_copy. Cette fois on ne précise le type et les attributs que de
+                # la colonne id et on ajoute un index sur nom.
+
+                DROP TABLE Animal_copy;
+
+                CREATE TEMPORARY TABLE Animal_copy (
+                id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+                INDEX (nom(10))
+                ) ENGINE=InnoDB
+                SELECT *
+                FROM Animal
+                WHERE espece_id = 5;
+
+                 DESCRIBE Animal_copy;
+
+
+            -- VI.2.2.2.3. Réunir les données de plusieurs tables
+
+                # Exemple 1 : création de Client_mini, qui correspond à une partie de la table Client.
+                CREATE TABLE Client_mini
+                SELECT nom, prenom, date_naissance
+                FROM Client;
+
+                # Exemple 2 : création de Race_espece, à partir des tables Espece et Race.
+                CREATE TABLE Race_espece
+                SELECT Race.id, Race.nom, Espece.nom_courant AS espece, Espece.id AS espece_id
+                FROM Race
+                INNER JOIN Espece ON Espece.id = Race.espece_id;
+
 
         SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.commentaires,
         Animal.espece_id, Animal.race_id, Animal.mere_id, Animal.pere_id, Animal.disponible,
