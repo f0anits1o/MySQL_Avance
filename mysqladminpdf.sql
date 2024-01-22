@@ -5822,7 +5822,21 @@ group by year(Adoption.date_reservation),Espece.id;
         -- VII.1.1. Introduction
         -- ---------------------
             -- VII.1.1.1. Les Utilisateurs et leurs privileges
+
         
+            -- VII.1.1.1. Les Utilisateurs et leurs privileges
+            -- -----------------------------------------------
+                -- VII.1.1.1.1. Privilèges des utilisateurs
+                -- VII.1.1.1.2. Stockage des utilisateurs et privilèges
+                -- VII.1.1.1.3. Modifications
+
+
+                -- VII.1.1.1.1. Privilèges des utilisateurs
+                    -- lesona be
+
+                  
+                -- VII.1.1.1.2. Stockage des utilisateurs et privilèges
+                    -- lesona be
 
 
 
@@ -5834,6 +5848,61 @@ group by year(Adoption.date_reservation),Espece.id;
             -- VII.1.2.4. Mot de passe
 
 
+            -- VII.1.2.1. Creation, modification et supression
+            -- -----------------------------------------------
+                -- lesona be
+
+
+            -- VII.1.2.2. Syntaxe
+            -- ------------------
+
+                -- Création
+                CREATE USER 'login'@'hote' [IDENTIFIED BY 'mot_de_passe'];
+
+                -- Suppression
+                DROP USER 'login'@'hote'; 
+
+            
+            -- VII.1.2.3. Utilisateur
+            -- ----------------------
+                -- VII.1.2.3.1. Login (lesona be)
+                -- VII.1.2.3.2. Hôte
+                -- VII.1.2.3.3. Renommer l’utilisateur
+
+
+                -- VII.1.2.3.2. Hôte
+                -- -----------------
+                    -- Exemples 1:
+                    CREATE USER 'max'@'localhost' IDENTIFIED BY 'maxisthebest';
+                    CREATE USER 'elodie'@'194.28.12.4' IDENTIFIED BY 'ginko1';
+                    CREATE USER 'gabriel'@'arb.brab.net' IDENTIFIED BY 'chinypower';
+
+
+                    # Exemples
+                    -- thibault peut se connecter à partir de n'importe quel hôte dont l'adresse IP commence par 194.28.12.
+                    CREATE USER 'thibault'@'194.28.12.%' IDENTIFIED BY 'basketball8';
+
+                    -- joelle peut se connecter à partir de n'importe quel hôte du domaine brab.net
+                    CREATE USER 'joelle'@'%.brab.net' IDENTIFIED BY 'singingisfun';
+
+                    -- hannah peut se connecter à partir de n'importe quel hôte
+                    CREATE USER 'hannah'@'%' IDENTIFIED BY 'looking4sun';
+                    create user 'john'@'localhost' IDENTIFIED BY 'exemple2012';
+
+
+                -- VII.1.2.3.3. Renommer l’utilisateur
+                -- -----------------------------------
+
+                    # Exemple : on renomme max en maxime, en gardant le même hôte.
+                    RENAME USER 'max'@'localhost' TO 'maxime'@'localhost';
+
+
+            -- VII.1.2.4. Mot de passe
+            -- -----------------------
+                -- VII.1.2.4.1. Modifier le mot de passe
+                
+                -- Exemple
+                SET PASSWORD FOR 'thibault'@'194.28.12.%' = PASSWORD('basket8');
 
 
 
@@ -5842,15 +5911,60 @@ group by year(Adoption.date_reservation),Espece.id;
             -- VII.1.3.1. Les differents privileges
             -- VII.1.3.2. Les differents niveaux d'application des privileges
 
-
+            # Lesona be
 
 
         -- VII.1.4. Ajout et revocation de privilege
         -- -----------------------------------------
-            -- VII.1.4.1. Ajout de privileges;
+            -- VII.1.4.1. Ajout de privileges
             -- VII.1.4.2. Revocation de privileges 
 
 
+            -- VII.1.4.1. Ajout de privileges
+            -- ------------------------------
+                -- VII.1.4.1.1. Syntaxe
+                GRANT privilege [(liste_colonnes)] [, privilege [(liste_colonnes)],...]
+                ON [type_objet] niveau_privilege
+                TO utilisateur [IDENTIFIED BY mot_de_passe];
+
+                # Exemples
+                # 1. On crée un utilisateur 'john'@'localhost', en lui donnant les privilèges SELECT, INSERT
+                # et DELETE sur la table elevage.Animal, et UPDATE sur les colonnes nom, sexe et commentaires
+                # de la table elevage.Animal.  
+
+                GRANT SELECT,
+                UPDATE (nom, sexe, commentaires),
+                DELETE,
+                INSERT
+                ON mysqladminpdf.Animal
+                TO 'john'@'localhost';
+
+                
+                # 2. On accorde le privilège SELECT à l’utilisateur 'john'@'localhost' sur la table elevage.
+                # Espece, et on modifie son mot de passe.
+
+
+                GRANT SELECT
+                ON TABLE mysqladminpdf.Espece -- On précise que c'est une table (facultatif)
+                TO 'john'@'localhost';
+
+                # On accorde à 'john'@'localhost' le privilège de créer et exécuter des procédures stockées
+                # dans la base de données elevage. 
+
+                GRANT CREATE ROUTINE, EXECUTE
+                ON elevage.*
+                TO 'john'@'localhost';
+
+
+
+            -- VII.1.4.2. Revocation de privileges 
+            -- -----------------------------------
+                REVOKE privilege [, privilege, ...]
+                ON niveau_privilege
+                FROM utilisateur;
+
+                # Exemple
+                REVOKE DELETE ON mysqladminpdf.Animal FROM 'john'@'localhost';
 
 
         -- VII.1.5. Privileges particuliers
@@ -5859,14 +5973,165 @@ group by year(Adoption.date_reservation),Espece.id;
             -- VII.1.5.2. Particularite des triggers, vues et procedures stockees
         
 
+            -- VII.1.5.1. Les privileges All, Usage, Grant OPTION
+            -- --------------------------------------------------
+                -- VII.1.5.1.1. ALL
+                -- VII.1.5.1.2. USAGE
+                -- VII.1.5.1.3. GRANT OPTION
 
-    
+
+                -- VII.1.5.1.1. ALL
+                -- ----------------
+                    # Exemple : on accorde tous les droits sur la table Client à 'john'@'localhost'.
+                    GRANT ALL
+                    ON mysqladminpdf.Client
+                    TO 'john'@'localhost';  
+
+
+                -- VII.1.5.1.2. USAGE
+                -- ------------------
+                    # Exemple : modification du mot de passe de 'john'@'localhost'. Ses privilèges ne changent pas.
+                    GRANT USAGE
+                    ON *.*
+                    TO 'john'@'localhost';
+
+
+                -- VII.1.5.1.3. GRANT OPTION
+                -- -------------------------
+
+                    # Exemple : on accorde les privilèges SELECT, UPDATE, INSERT, DELETE et GRANT OPTION sur la base de données elevage à 'joseph'@'localhost'.
+                    GRANT SELECT, UPDATE, INSERT, DELETE, GRANT OPTION on mysqladminpdf.* TO 'john'@'localhost';
+
+                    -- OU
+
+                    GRANT SELECT, UPDATE, INSERT, DELETE ON mysqladminpdf.* TO 'john'@'localhost' WITH GRANT OPTION;
+
+
+
+            -- VII.1.5.2. Particularite des triggers, vues et procedures stockees
+            -- ------------------------------------------------------------------
+                -- VII.1.5.2.1. Préciser et modifier le définisseur
+                -- VII.1.5.2.2. Modification du contexte
+
+                    # Exemple : avec l’utilisateur sdz, on définit une procédure faisant une requête SELECT sur la
+                    # table Adoption. On exécute ensuite cette procédure avec l’utilisateur john, qui n’a aucun droit
+                    # sur la table Adoption.
+
+                    USE elevage;
+
+                    DELIMITER |
+
+                    DROP PROCEDURE test_definer|
+
+                    CREATE PROCEDURE test_definer()
+                    BEGIN
+                    SELECT * FROM Adoption;
+                    END |
+
+                    DELIMITER ;
+
+                    SELECT * FROM Adoption;
+                    CALL test_definer();
+
+
+
+                -- VII.1.5.2.1. Préciser et modifier le définisseur
+                -- ------------------------------------------------
+                    # Exemple : définition de deux procédures stockées avec l’utilisateur root (le seul ayant le
+                    # privilège SUPER sur notre serveur), l’une avec root pour DEFINER (CURRENT_USER()), l’autre
+                    # avec john.
+
+                    DELIMITER |
+                    CREATE DEFINER = CURRENT_USER() PROCEDURE test_definer2()
+                    BEGIN
+                        SELECT * FROM Race ; 
+                    END | # utilisateur root ihany io no mandeha
+
+                    
+                    CREATE DEFINER = 'john'@'localhost' PROCEDURE test_definer3()
+                    BEGIN
+                    SELECT * FROM Race;
+                    END |
+                    DELIMITER ;
+
+                    CALL test_definer2();
+                    CALL test_definer3();
+
+
+                -- VII.1.5.2.2. Modification du contexte
+                -- -------------------------------------
+                
+                -- Vues
+                CREATE [OR REPLACE]
+                [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
+                [DEFINER = { utilisateur | CURRENT_USER }]
+                [SQL SECURITY { DEFINER | INVOKER }]
+                VIEW nom_vue [(liste_colonnes)]
+                AS requete_select
+                [WITH [CASCADED | LOCAL] CHECK OPTION]
+
+                -- Procédures
+                CREATE
+                [DEFINER = { utilisateur | CURRENT_USER }]
+                PROCEDURE nom_procedure ([parametres_procedure])
+                SQL SECURITY { DEFINER | INVOKER }
+                corps_procedure;
+
+                # Exemple : création, par l’utilisateur root, de deux vues avec des contextes de vérification des
+                # privilèges différents.
+
+                CREATE DEFINER = CURRENT_USER
+                SQL SECURITY DEFINER
+                VIEW test_contexte1
+                AS SELECT * FROM Race;
+
+                CREATE DEFINER = CURRENT_USER
+                SQL SECURITY INVOKER
+                VIEW test_contexte2
+                AS SELECT * FROM Race;
+
+
+                GRANT SELECT ON mysqladminpdf.test_contexte1 TO 'john'@'localhost';
+                GRANT SELECT ON mysqladminpdf.test_contexte2 TO 'john'@'localhost';
+
+
+                SELECT * FROM test_contexte1;
+                SELECT * FROM test_contexte2;
+
+
 
         -- VII.1.6. Options supplementaires
         -- --------------------------------
             -- VII.1.6.1. Limitation des ressources
             -- VII.1.6.2. Connexion SSL
             -- VII.1.6.3. En resume
+
+
+            -- VII.1.6.1. Limitation des ressources
+            -- ------------------------------------
+                # Exemple : création d’un compte 'aline'@'localhost' ayant tous les droits sur la base de
+                # données elevage, mais avec des ressources limitées.
+
+                # Tsy mandeha ny code rehetra momba ity section ity.
+
+
+                GRANT ALL ON mysqladminpdf.*
+                TO 'aline'@'localhost' 
+                WITH MAX_QUERIES_PER_HOUR 50
+                MAX_CONNECTIONS_PER_HOUR 5;
+
+                
+                # Exemple
+                GRANT USAGE ON *.*
+                TO 'john'@'localhost'
+                WITH MAX_UPDATES_PER_HOUR 15;
+
+
+                # Exemple
+                GRANT USAGE ON *.*
+                TO 'john'@'localhost'
+                WITH MAX_UPDATES_PER_HOUR 0;
+
 
 
     -- VII.2. Information sur la base de donnee et les requetes
@@ -5876,21 +6141,117 @@ group by year(Adoption.date_reservation),Espece.id;
         -- VII.2.3. Deroulement d'une requete de selection
 
 
-        -- VII.2.1. commande de description
+        -- VII.2.1. commande de description (show et describe)
         -- --------------------------------
             -- VII.2.1.1. Description d'objets
             -- VII.2.1.2. Requete de creation d'un objet
         
 
+            -- VII.2.1.1. Description d'objets
+            -- -------------------------------
+                -- syntaxe
+                show objets;
+
+
+                # Exemple:
+                show tables;
+
+
+                # Exemple 1 : sélection des colonnes d’Adoption dont le nom commence par ”date”.
+                
+                SHOW COLUMNS
+                FROM Adoption
+                LIKE 'date%';
+
+#
+                #Exemple 2 : sélection des encodages contenant ”arab” dans leur description.
+                SHOW CHARACTER SET
+                WHERE Description LIKE '%arab%';
+
+
+
+            -- VII.2.1.2. Requete de creation d'un objet
+            -- -----------------------------------------
+
+                # Exemple 1 : requête de création de la table Espece.
+                SHOW CREATE TABLE Espece \G
+
+                # Le \G est un délimiteur, comme ; . Il change simplement la manière d’afficher le résultat,
+                # qui ne sera plus sous forme de tableau, mais formaté verticalement. Pour les requêtes de
+                # description comme SHOW CREATE, qui renvoient peu de lignes (ici : une) mais contenant
+                # beaucoup d’informations, c’est beaucoup plus lisible.
+
+
+                # Exemple 2 : requête de création du trigger before_insert_adoption.
+                SHOW CREATE TRIGGER before_insert_adoption \G
+
 
         -- VII.2.2. la base de donnee information_schema
+        -- ---------------------------------------------
+            show tables from information_schema;
 
 
+            show columns from views from information_schema;
+
+            USE information_schema; -- On sélectionne la base de données
+
+            SELECT TABLE_SCHEMA, TABLE_NAME, VIEW_DEFINITION, IS_UPDATABLE, DEFINER, SECURITY_TYPE
+            FROM VIEWS
+            WHERE TABLE_NAME = 'V_Animal_details' \G
+
+
+            # Exemple 1 : données sur les contraintes de la table Animal.
+            SELECT CONSTRAINT_SCHEMA, CONSTRAINT_NAME, TABLE_NAME, CONSTRAINT_TYPE
+            FROM TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = 'mysqladminpdf' AND TABLE_NAME = 'Animal';
+
+
+            # Exemple 2 : données sur la procédure maj_vm_revenus().
+            SELECT ROUTINE_NAME, ROUTINE_SCHEMA, ROUTINE_TYPE, ROUTINE_DEFINITION, DEFINER, SECURITY_TYPE
+            FROM ROUTINES
+            WHERE ROUTINE_NAME = 'maj_vm_revenus' \G
 
 
         -- VII.2.3. Deroulement d'une requete de selection
         -- -----------------------------------------------
-            -- VII.2.3.1. En resume
+            -- VII.2.3.0.1. Savoir sur quelle colonne ajouter un index
+            -- VII.2.3.0.2. Comparer le plan d’exécution de plusieurs requêtes
+            -- VII.2.3.1. En resume (lesona be)
+
+            # Exemple
+            use mysqladminpdf;
+
+            EXPLAIN SELECT Animal.nom, Espece.nom_courant AS espece, Race.nom AS race
+            FROM Animal
+            INNER JOIN Espece ON Animal.espece_id = Espece.id
+            LEFT JOIN Race ON Animal.race_id = Race.id
+            WHERE Animal.id = 37;
+
+
+
+            -- VII.2.3.0.1. Savoir sur quelle colonne ajouter un index
+            -- ------------------------------------------------------
+                EXPLAIN SELECT Animal.nom, Adoption.prix, Adoption.date_reservation
+                FROM Animal
+                INNER JOIN Adoption ON Adoption.animal_id = Animal.id
+                WHERE date_reservation >= '2012-05-01' \G
+
+
+                ALTER TABLE Adoption ADD INDEX ind_date_reservation (date_reservation);    
+                ALTER TABLE Adoption ADD INDEX ind_date_reservation (date_reservation);    
+
+
+
+            -- VII.2.3.0.2. Comparer le plan d’exécution de plusieurs requêtes
+            -- ---------------------------------------------------------------
+                # Exemple
+                EXPLAIN SELECT *
+                FROM VM_Revenus_annee_espece
+                WHERE somme/2 > 1000 \G
+
+                EXPLAIN SELECT *
+                FROM VM_Revenus_annee_espece
+                WHERE somme > 1000*2 \G
 
 
 
@@ -5906,8 +6267,58 @@ group by year(Adoption.date_reservation),Espece.id;
         -- VII.3.1. Variable systeme
         -- -------------------------
             -- VII.3.1.1. Niveau des variables systeme
-        
+            show variables;
+
+
+            #Exemple 1 : variables en rapport avec l’auto-incrémentation.
+            SHOW VARIABLES LIKE '%auto_increment%';
     
+
+            #Exemple 2 : affichage de la valeur de unique_checks.
+            
+            SHOW VARIABLES LIKE 'unique_checks';
+
+
+            # Exemple
+            SELECT @@autocommit;
+
+
+
+            -- VII.3.1.1. Niveau des variables systeme
+            -- ---------------------------------------
+                -- VII.3.1.1.1. Variables système n’existant qu’à un niveau
+
+                    SHOW GLOBAL VARIABLES;
+                    SHOW SESSION VARIABLES;
+
+                    SELECT @@GLOBAL.nom_variable;
+                    SELECT @@SESSION.nom_variable;
+
+
+                -- VII.3.1.1.1. Variables système n’existant qu’à un niveau
+                -- --------------------------------------------------------
+
+                #Exemples : last_insert_id n’existe qu’au niveau de la session, max_connections n’existe qu’au niveau global.
+                
+                    SHOW VARIABLES LIKE 'last_insert_id';
+                    SHOW SESSION VARIABLES LIKE 'last_insert_id';
+                    SHOW GLOBAL VARIABLES LIKE 'last_insert_id';
+
+
+                    SHOW VARIABLES LIKE 'max_connections';
+                    SHOW SESSION VARIABLES LIKE 'max_connections';
+                    SHOW GLOBAL VARIABLES LIKE 'max_connections';
+
+
+                    SELECT @@max_connections AS max_connections, @@last_insert_id AS last_insert_id;
+                    SELECT @@GLOBAL.max_connections AS max_connections,
+                    @@SESSION.last_insert_id AS last_insert_id;
+
+
+                    SELECT @@SESSION.max_connections;
+                    SELECT @@GLOBAL.last_insert_id;
+
+
 
 
         -- VII.3.2. Modification des variables systeme avec SET
@@ -5916,11 +6327,48 @@ group by year(Adoption.date_reservation),Espece.id;
             -- VII.3.2.2. Les commandes SET speciales
 
 
+                # Deux syntaxes sont possibles avec SET :
+                SET niveau nom_variable = valeur;
+
+                -- OU
+
+                SET @@niveau.nom_variable = valeur;
+
+
+                # Exemples
+                SET SESSION max_tmp_tables = 5; -- Nombre maximal de tables temporaires
+                SET @@GLOBAL.storage_engine = InnoDB; -- Moteur de stockage par défaut
+
+                -- Exemples
+                SET max_tmp_tables = 12;
+                SET @@max_tmp_tables = 8;
+
+                SET @@max_connections = 200;
+
+
+            -- VII.3.2.1. Effet de la modification selon le niveau
+            -- ---------------------------------------------------
+                SELECT @@GLOBAL.storage_engine, @@SESSION.storage_engine;
+
+
+            -- VII.3.2.2. Les commandes SET speciales
+            -- --------------------------------------
+                -- syntaxe
+                SET NAMES encodage;
+
+                SET [GLOBAL | SESSION] TRANSACTION ISOLATION LEVEL { REPEATABLE
+                    READ | READ COMMITTED | READ UNCOMMITTED | SERIALIZABLE }
+
+
+
 
         -- VII.3.3. Options au demarage du client MYSQL
         -- --------------------------------------------
+            -- Exemple
+            SELECT id, nom, espece_id, prix
+            FROM Race;
 
-
+            
 
 
 
