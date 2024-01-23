@@ -1,4 +1,4 @@
--- Active: 1705827937494@@127.0.0.1@3306@mysqladminpdf
+-- Active: 1705929800065@@127.0.0.1@3306@mysqladminpdf
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -1299,6 +1299,179 @@ UPDATE Animal
 SET mere_id = 52
 WHERE nom = 'Spoutnik'
 AND espece_id = 3;
+
+
+
+
+####################################################
+#                                                  #
+#              TROISIEME PARTIE                    #
+#     FONCTION: NOMBRES, CHAINES ET AGREGATS ADD   #
+#                                                  #
+####################################################
+
+
+-- II. Fonctions: nombres, chaines et aggregats
+-- --------------------------------------------
+    -- III.1. Rappels et introduction
+    -- III.2. Fonctions scalaires
+    -- III.3. Fonctions d'agregation
+    -- III.4. Regroupement
+    -- III.5. Exercice sur les agregats
+
+
+    -- III.1. Rappels et introduction
+    -- -------------------------------
+        -- III.1.1. Rappels et manipulation simple de nombres
+        -- III.1.2. Definition d'une fonction
+        -- III.1.3. Quelques fonctions generales
+
+
+        -- III.1.1. Rappels et manipulation simple de nombres
+        -- --------------------------------------------------
+            -- III.1.1.1. Rappels
+            -- III.1.1.2. Combiner les donnees avec des operateurs mathematiques
+
+
+
+        -- III.1.2. Definition d'une fonction
+        -- ----------------------------------
+            -- III.1.2.1. Fonction scalaire vs fonctions d'agregation
+        
+
+
+
+        -- III.1.3. Quelques fonctions generales
+        -- -------------------------------------
+            -- III.1.3.1. Informations sur l'environnement actuel
+            -- III.1.3.2. Informations sur la derniere requete
+            -- III.1.3.3. Convertir le type de donnees
+            -- III.1.3.4. En resume
+
+
+
+    -- III.2. Fonctions scalaires
+    -- --------------------------
+        -- III.2.1. Manipulation de nombres
+        -- III.2.2. Manipulation de chaines de caracteres
+        -- III.2.3. Exemple d'application et exercice
+
+
+        -- III.2.1. Manipulation de nombres
+        -- --------------------------------
+            -- III.2.1.1. Arrondis
+            -- III.2.1.2. Exposants et racines
+            -- III.2.1.3. Hasard
+
+
+    
+        -- III.2.2. Manipulation de chaines de caracteres
+        -- ----------------------------------------------
+            -- III.2.2.1. Longueur et comparaison
+            -- III.2.2.2. Retrait et ajout de caracteres
+            -- III.2.2.3. Recherche et remplacement
+            -- III.2.2.4. Concatenation
+            -- III.2.2.5. FIELD(), une bien utile pour le tri
+            -- III.2.2.6. Code ASCII
+
+
+
+
+
+        -- III.2.3. Exemple d'application et exercice
+        -- ------------------------------------------
+            -- III.2.3.1. On commence par du facile
+            -- III.2.3.2. Puis on corse un peu
+            -- III.2.3.3. En resume
+
+
+
+
+
+    -- III.3. Fonctions d'agregation
+    -- -----------------------------
+        -- III.3.1. Fonctions statistiques
+        -- III.3.2. Concatenation
+
+
+        -- III.3.1. Fonctions statistiques
+        -- -------------------------------
+            -- III.3.1.1. Nombre de lines
+            -- III.3.1.2. Minimum et maximum
+            -- III.3.1.3. Somme et moyenne
+
+
+
+        -- III.3.2. Concatenation
+        -- ----------------------
+            -- III.3.2.1. Principe
+            -- III.3.2.2. Syntaxe
+            -- III.3.2.3. Exemples
+            -- III.3.2.4. En resume
+
+        
+
+
+
+
+    -- III.4. Regroupement
+    -- -------------------
+        -- III.4.1. Regroupement sur un critere
+        -- III.4.2. Regroupement sur un plusieurs criteres
+        -- III.4.3. Super-agregats
+        -- III.4.4. Conditions sur les fonctions d'agregation
+
+
+        -- III.4.1. Regroupement sur un critere
+        -- ------------------------------------
+            -- III.4.1.1. Voir d'autres colonnes
+            -- III.4.1.2. Colonnes selectionnees
+            -- III.4.1.3. Tri de donnees
+            -- III.2.1.4. Et les autres especes?
+
+
+        -- III.4.2. Regroupement sur un plusieurs criteres
+        -- -----------------------------------------------
+
+
+
+        -- III.4.3. Super-agregats
+        -- -----------------------
+        
+
+        -- III.4.4. Conditions sur les fonctions d'agregation
+        -- --------------------------------------------------
+            -- III.4.4.1. Optimisation
+            -- III.4.4.2. En resume
+
+
+
+
+    -- III.5. Exercice sur les agregats
+    -- --------------------------------
+        -- III.5.1. Du simple
+        -- III.5.2. Vers le complexe
+
+
+        -- III.5.1. Du simple
+        -- ------------------
+            -- III.5.1.1. 1. Combien de races avons-nous dans la table race?
+            -- III.5.1.2. 2. De combien de chiens connaissons-nous le pere?
+            -- III.5.1.3. 3. Quelle est la date de naissance de notre plus jeune femelle?
+            -- III.5.1.4. 4. En moyenne, quel est le prix d'un chien ou d'un chat de race, par espece et en general?
+            -- III.5.1.5. 5. Combien avons-nous de perroquets male et femelles, et quels sont leurs noms (en une seule requete bien sur)?
+
+
+
+        -- III.5.2. Vers le complexe
+        -- -------------------------
+            -- III.5.2.1. 1. Quelles sont les races dont nous ne possedons aucun individu?
+            -- III.5.2.2. 2. Quelles sont les especes (triees par ordre alphabetique du nom latin) dont nous possedons moins de cinq males?
+            -- III.5.2.3. 3. Combien de males et de femelles de chaque avons-nous, avec un compt total intermediaire pour les races (males et femelles confondues) et pour les especes ? Afficher le nom de la race et le nom courant de l'espece.
+            -- III.5.2.4. 4. Quel serait le cout, par espece et au total, de l'adoption de Parlotte, Spoutnik, Caribou, Cartouche, Cali, Canaille, Yoda, Zambo, et Lulla?
+            
+
+
 
 
 -- ------------ --
