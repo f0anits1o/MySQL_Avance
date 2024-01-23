@@ -1428,17 +1428,130 @@ AND espece_id = 3;
 
         -- III.1.1. Rappels et manipulation simple de nombres
         -- --------------------------------------------------
-            -- III.1.1.1. Rappels
+            -- III.1.1.1. Rappels (lesona be)
             -- III.1.1.2. Combiner les donnees avec des operateurs mathematiques
 
+
+            -- III.1.1.2. Combiner les donnees avec des operateurs mathematiques
+            -- -----------------------------------------------------------------
+                -- addition (+)
+                -- soustraction (-)
+                -- multiplication (*)
+                -- division (/)
+                -- division entiere (div)
+                -- modulo (% ou mod)
+
+                -- Exemple : les six opérateurs mathématiques.
+                SELECT 1+1, 4-2, 3*6, 5/2, 5 DIV 2, 5 % 2, 5 MOD 2;
+
+
+            -- III.1.1.2. Combiner les donnees avec des operateurs mathematiques
+            -- -----------------------------------------------------------------
+                -- III.1.1.2.1. Modification de notre base de données
+                -- III.1.1.2.2. Opérations sur données sélectionnée
+                -- III.1.1.2.3. Modification de données grâce à des opérations mathématiques
+
+
+                -- III.1.1.2.1. Modification de notre base de données
+                -- --------------------------------------------------
+
+                    ALTER TABLE Race
+                    ADD COLUMN prix DECIMAL(7,2) UNSIGNED;
+
+                    ALTER TABLE Espece
+                    ADD COLUMN prix DECIMAL(7,2) UNSIGNED;
+
+                    -- Remplissage des colonnes "prix"
+                    UPDATE Espece SET prix = 200 WHERE id = 1;
+                    UPDATE Espece SET prix = 150 WHERE id = 2;
+                    UPDATE Espece SET prix = 140 WHERE id = 3;
+                    UPDATE Espece SET prix = 700 WHERE id = 4;
+                    UPDATE Espece SET prix = 10 WHERE id = 5;
+                    UPDATE Espece SET prix = 75 WHERE id = 6;
+
+                    UPDATE Race SET prix = 450 WHERE id = 1;
+                    UPDATE Race SET prix = 900 WHERE id = 2;
+                    UPDATE Race SET prix = 950 WHERE id = 3;
+                    UPDATE Race SET prix = 800 WHERE id = 4;
+                    UPDATE Race SET prix = 700 WHERE id = 5;
+                    UPDATE Race SET prix = 1200 WHERE id = 7;
+                    UPDATE Race SET prix = 950 WHERE id = 8;
+                    UPDATE Race SET prix = 600 WHERE id = 9;                   
+
+
+
+                -- III.1.1.2.2. Opérations sur données sélectionnée
+                -- ------------------------------------------------
+                    # Exemple 1 : Imaginons que nous voulions savoir le prix à payer pour acheter 3 individus de la
+                    # même espèce (sans considérer la race). Facile, il suffit de multiplier le prix de chaque espèce par
+
+                    SELECT nom_courant, prix*3 AS prix_trio
+                    FROM Espece; 
+
+
+                    # Exemple 2 : toutes les opérations courantes peuvent bien entendu être utilisées.
+                    
+                    SELECT nom_courant, prix,
+                    prix+100 AS addition, prix/2 AS division,
+                    prix-50.5 AS soustraction, prix%3 AS modulo
+                    FROM Espece;
+
+
+                -- III.1.1.2.3. Modification de données grâce à des opérations mathématiques
+                -- -------------------------------------------------------------------------
+                    # Exemple : la commande suivante va augmenter le prix de toutes les races de 35 :
+                    UPDATE Race
+                    SET prix = prix + 35;
 
 
         -- III.1.2. Definition d'une fonction
         -- ----------------------------------
             -- III.1.2.1. Fonction scalaire vs fonctions d'agregation
         
+            SELECT MIN(date_naissance) -- On utilise ici une fonction !
+            FROM (
+            SELECT Animal.id, Animal.sexe, Animal.date_naissance, Animal.nom, Animal.espece_id
+            FROM Animal
+            INNER JOIN Espece
+            ON Espece.id = Animal.espece_id
+            WHERE Espece.nom_courant IN ('Tortue d''Hermann', 'Perroquet amazone')
+            ) AS tortues_perroquets;        
 
 
+            # III.1.2.0.4. Exemples
+                -- Fonction sans paramètre
+                SELECT PI(); -- renvoie le nombre Pi, avec 5 décimales
+
+                -- Fonction avec un paramètre
+                SELECT MIN(prix) AS minimum -- il est bien sûr possible d'utiliser les alias !
+                FROM Espece;
+
+                -- Fonction avec plusieurs paramètres
+                SELECT REPEAT('fort ! Trop ', 4); -- répète une chaîne (ici : 'fort ! Trop ', répété 4 fois)                
+                -- Même chose qu'au-dessus, mais avec les paramètres dans le mauvais ordre
+                SELECT REPEAT(4, 'fort ! Trop '); -- la chaîne de caractères 'fort! Trop ' va être convertie en entier par MySQL, ce qui donne 0."4" va donc être répété zéro fois...
+
+
+
+            -- III.1.2.1. Fonction scalaire vs fonctions d'agregation
+            -- ------------------------------------------------------
+                -- III.1.2.1.1. Fonction scalaire
+                -- III.1.2.1.2. Fonction d’agrégation
+                
+
+
+                -- III.1.2.1.1. Fonction scalaire
+                -- ------------------------------
+                    SELECT nom, prix, ROUND(prix)
+                    FROM Race;
+
+
+                -- III.1.2.1.2. Fonction d’agrégation
+                -- ----------------------------------
+                    SELECT MIN(prix)
+                    FROM Race;
+
+   
 
         -- III.1.3. Quelques fonctions generales
         -- -------------------------------------
@@ -1449,6 +1562,76 @@ AND espece_id = 3;
 
 
 
+            -- III.1.3.1. Informations sur l'environnement actuel
+            -- -------------------------------------------------
+                -- III.1.3.1.1. Version de MySQL
+                -- III.1.3.1.2. Où suis-je? Qui suis-je?
+
+
+                -- III.1.3.1.1. Version de MySQL
+                -- -----------------------------
+                    SELECT VERSION();
+
+
+                -- III.1.3.1.2. Où suis-je? Qui suis-je?
+                -- -------------------------------------
+                    SELECT CURRENT_USER(), USER();
+
+                    
+            -- III.1.3.2. Informations sur la derniere requete
+            -- -----------------------------------------------
+                -- III.1.3.2.1. Dernier ID généré par auto-incrémentation
+                -- III.1.3.2.2. Nombre de lignes renvoyées par la requête
+
+
+                -- III.1.3.2.1. Dernier ID généré par auto-incrémentation
+                -- ------------------------------------------------------
+                    INSERT INTO Race (nom, espece_id, description, prix)
+                    VALUES ('Rottweiller', 1,'Chien d''apparence solide, bien musclé, à la robe noire avec des taches feu bien délimitées.', 600.00);
+
+                    INSERT INTO Animal (sexe, date_naissance, nom, espece_id, race_id)
+                    VALUES ('M', '2010-11-05', 'Pipo', 1, LAST_INSERT_ID()); -- LAST_INSERT_ID() renverra ici l'id de la race Rottweiller
+                    
+
+
+                -- III.1.3.2.2. Nombre de lignes renvoyées par la requête
+                -- ------------------------------------------------------
+                    SELECT id, nom, espece_id, prix
+                    FROM Race;
+
+                    SELECT FOUND_ROWS();
+
+
+                    SELECT id, nom, espece_id, prix -- Sans option
+                    FROM Race
+                    LIMIT 3;
+
+                    SELECT FOUND_ROWS() AS sans_option;
+
+                    SELECT SQL_CALC_FOUND_ROWS id, nom, espece_id, prix -- Avec option
+                    FROM Race
+                    LIMIT 3;
+
+                    SELECT FOUND_ROWS() AS avec_option;
+               
+
+
+            -- III.1.3.3. Convertir le type de donnees
+            -- ---------------------------------------
+                # Exemple : conversions automatiques
+                    SELECT *
+                    FROM Espece
+                    WHERE id = '3';
+
+                    INSERT INTO Espece (nom_latin, nom_courant, description, prix)
+                    VALUES ('Rattus norvegicus', 'Rat brun', 'Petite bestiole avec de longues moustaches et une longue queue sans poils', '10.00');
+                
+
+                # Exemple : conversion d’une chaîne de caractère en date
+                    SELECT CAST('870303' AS DATE);
+
+    
+    
     -- III.2. Fonctions scalaires
     -- --------------------------
         -- III.2.1. Manipulation de nombres
@@ -1461,9 +1644,105 @@ AND espece_id = 3;
             -- III.2.1.1. Arrondis
             -- III.2.1.2. Exposants et racines
             -- III.2.1.3. Hasard
+            -- III.2.1.4. Divers
 
+
+
+            -- III.2.1.1. Arrondis
+            -- -------------------
+                -- III.2.1.1.1. CEIL()
+                -- III.2.1.1.2. FLOOR()
+                -- III.2.1.1.3. ROUND()
+                -- III.2.1.1.4. TRUNCATE()
+
+
+                -- III.2.1.1.1. CEIL()
+                -- -------------------
+                    #CEIL(n) ou CEILING(n) arrondit au nombre entier supérieur.
+                    SELECT CEIL(3.2), CEIL(3.7);
+
+
+                -- III.2.1.1.2. FLOOR()
+                -- --------------------
+                    # FLOOR(n) arrondit au nombre entier inférieur.
+                    SELECT FLOOR(3.2), FLOOR(3.7); 
+
+
+
+                -- III.2.1.1.3. ROUND()
+                -- --------------------
+                    # ROUND(n, d) arrondit au nombre à d décimales le plus proche. ROUND(n) équivaut à écrire
+                    # ROUND(n, 0), donc arrondit à l’entier le plus proche.
+                    SELECT ROUND(3.22, 1), ROUND(3.55, 1), ROUND(3.77, 1);
+
+                    SELECT ROUND(3.2), ROUND(3.5), ROUND(3.7); 
+
+
+
+                -- III.2.1.1.4. TRUNCATE()
+                -- -----------------------
+                    # TRUNCATE(n, d) arrondit en enlevant purement et simplement les décimales en trop (donc
+                    # arrondi à l’inférieur pour les nombres positifs, au supérieur pour les nombres négatifs).
+                    SELECT TRUNCATE(3.2, 0), TRUNCATE(3.5, 0), TRUNCATE(3.7, 0);
+
+                    SELECT TRUNCATE(3.22, 1), TRUNCATE(3.55, 1), TRUNCATE(3.77, 1);
+
+
+
+            -- III.2.1.2. Exposants et racines
+            -- -------------------------------
+                -- III.2.1.2.1. Exposants
+                -- III.2.1.2.2. Racines
 
     
+                -- III.2.1.2.1. Exposants
+                -- ----------------------
+                    SELECT POW(2, 5), POWER(5, 2);
+
+
+                -- III.2.1.2.2. Racines
+                -- --------------------
+                    SELECT SQRT(4);
+
+                    SELECT POW(32, 1/5);
+
+                    SELECT POW(4, 1/2);
+
+
+
+            -- III.2.1.3. Hasard
+            -- -----------------
+                SELECT RAND();
+
+                SELECT *
+                FROM Race
+                ORDER BY RAND();
+
+            
+            -- III.2.1.4. Divers
+            -- -----------------
+                -- III.2.1.4.1. SIGN()
+                -- III.2.1.4.2. ABS()
+                -- III.2.1.4.3. MOD()
+
+
+                -- III.2.1.4.1. SIGN()
+                -- -------------------
+                    SELECT SIGN(-43), SIGN(0), SIGN(37); 
+
+
+                -- III.2.1.4.2. ABS()
+                -- ------------------
+                    SELECT ABS(-43), ABS(0), ABS(37);
+
+
+                -- III.2.1.4.3. MOD()
+                -- ------------------
+                    SELECT MOD(56, 10);
+
+
+
+
         -- III.2.2. Manipulation de chaines de caracteres
         -- ----------------------------------------------
             -- III.2.2.1. Longueur et comparaison
@@ -1475,6 +1754,140 @@ AND espece_id = 3;
 
 
 
+            -- III.2.2.1. Longueur et comparaison
+            -- ----------------------------------
+                -- III.2.2.1.1. Connaître la longueur d’une chaîne
+                -- III.2.2.1.2. Comparer deux chaînes
+                    
+
+                -- III.2.2.1.1. Connaître la longueur d’une chaîne
+                -- -----------------------------------------------
+                    SELECT BIT_LENGTH('élevage'),
+                    CHAR_LENGTH('élevage'),
+                    LENGTH('élevage'); -- Les caractères accentués sont codés sur 2 octets en UTF-8        
+
+
+                -- III.2.2.1.2. Comparer deux chaînes
+                -- -----------------------------------
+                    SELECT STRCMP('texte', 'texte') AS 'texte=texte',
+                        STRCMP('texte','texte2') AS 'texte<texte2',
+                        STRCMP('chaine','texte') AS 'chaine<texte',
+                        STRCMP('texte', 'chaine') AS 'texte>chaine',
+                        STRCMP('texte3','texte24') AS 'texte3>texte24'; -- 3 est après 24 dans l'ordre alphabétique                   
+
+
+
+            -- III.2.2.2. Retrait et ajout de caracteres
+            -- -----------------------------------------
+
+                -- III.2.2.2.1. Répéter une chaîne
+                -- III.2.2.2.2. Compléter/réduire une chaîne
+                -- III.2.2.2.3. Ôter les caractères inutiles
+                -- III.2.2.2.4. Récupérer une sous-chaîne
+
+
+                -- III.2.2.2.1. Répéter une chaîne
+                -- -------------------------------
+                    SELECT REPEAT('Ok ', 3);
+
+
+                -- III.2.2.2.2. Compléter/réduire une chaîne
+                -- -----------------------------------------
+                    SELECT LPAD('texte', 3, '@') AS '3_gauche_@',
+                    LPAD('texte', 7, '$') AS '7_gauche_$',
+                    RPAD('texte', 5, 'u') AS '5_droite_u',
+                    RPAD('texte', 7, '*') AS '7_droite_*',
+                    RPAD('texte', 3, '-') AS '3_droite_-';     
+
+
+                -- III.2.2.2.3. Ôter les caractères inutiles
+                -- -----------------------------------------
+                    SELECT TRIM(' Tralala ') AS both_espace,
+                        TRIM(LEADING FROM ' Tralala ') AS lead_espace,
+                        TRIM(TRAILING FROM ' Tralala ') AS trail_espace,
+
+                        TRIM('e' FROM 'eeeBouHeee') AS both_e,
+                        TRIM(LEADING 'e' FROM 'eeeBouHeee') AS lead_e,
+                        TRIM(BOTH 'e' FROM 'eeeBouHeee') AS both_e,
+
+                        TRIM('123' FROM '1234ABCD4321') AS both_123;
+    
+
+
+                -- III.2.2.2.4. Récupérer une sous-chaîne
+                -- --------------------------------------
+                    SELECT SUBSTRING('texte', 2) AS from2,
+                        SUBSTRING('texte' FROM 3) AS from3,
+                        SUBSTRING('texte', 2, 3) AS from2long3,
+                        SUBSTRING('texte' FROM 3 FOR 1) AS from3long1;
+
+
+
+            -- III.2.2.3. Recherche et remplacement
+            -- ------------------------------------
+                -- III.2.2.3.1. Rechercher une chaîne de caractères
+                -- III.2.2.3.2. Changer la casse des chaînes
+                -- III.2.2.3.3. Récupérer la partie gauche ou droite
+                -- III.2.2.3.4. Inverser une chaîne
+                -- III.2.2.3.5. Remplacer une partie par autre chose
+
+
+
+                -- III.2.2.3.1. Rechercher une chaîne de caractères
+                -- ------------------------------------------------
+
+                    SELECT INSTR('tralala', 'la') AS fct_INSTR,
+                        POSITION('la' IN 'tralala') AS fct_POSITION,
+                        LOCATE('la', 'tralala') AS fct_LOCATE,
+                        LOCATE('la', 'tralala', 5) AS fct_LOCATE2;
+
+
+                -- III.2.2.3.2. Changer la casse des chaînes
+                -- -----------------------------------------
+                    SELECT LOWER('AhAh') AS minuscule,
+                        LCASE('AhAh') AS minuscule2,
+                        UPPER('AhAh') AS majuscule,
+                        UCASE('AhAh') AS majuscule2;
+
+
+                -- III.2.2.3.3. Récupérer la partie gauche ou droite
+                -- -------------------------------------------------
+                    SELECT LEFT('123456789', 5), RIGHT('123456789', 5);
+   
+
+                -- III.2.2.3.4. Inverser une chaîne
+                -- --------------------------------
+                    SELECT REVERSE('abcde');
+
+
+                -- III.2.2.3.5. Remplacer une partie par autre chose
+                -- -------------------------------------------------
+                    SELECT INSERT('texte', 3, 2, 'blabla') AS fct_INSERT,
+                    REPLACE('texte', 'e', 'a') AS fct_REPLACE,
+                    REPLACE('texte', 'ex', 'ou') AS fct_REPLACE2;
+
+
+
+            -- III.2.2.4. Concatenation
+            -- ------------------------
+                SELECT CONCAT('My', 'SQL', '!'), CONCAT_WS('-', 'My', 'SQL', '!');
+
+
+            -- III.2.2.5. FIELD(), une fonction bien utile pour le tri
+            -- -------------------------------------------------------
+                SELECT FIELD('Bonjour', 'Bonjour !', 'Au revoir', 'Bonjour', 'Au revoir !') AS field_bonjour;
+
+                # Exemple : ordonnons les espèces selon un ordre arbitraire. La fonction FIELD() dans la clause
+                #           SELECT n’est là que pour illustrer la façon dont ce tri fonctionne.
+
+                SELECT nom_courant, nom_latin, FIELD(nom_courant, 'Rat brun', 'Chat', 'Tortue d''Hermann', 'Chien', 'Perroquet amazone') AS resultat_field
+                FROM Espece
+                ORDER BY FIELD(nom_courant, 'Rat brun', 'Chat', 'Tortue d''Hermann', 'Chien', 'Perroquet amazone');
+
+
+            -- III.2.2.6. Code ASCII
+            -- ---------------------
+                SELECT ASCII('T'), CHAR(84), CHAR('84', 84+32, 84.2);
 
 
         -- III.2.3. Exemple d'application et exercice
@@ -1483,6 +1896,10 @@ AND espece_id = 3;
             -- III.2.3.2. Puis on corse un peu
             -- III.2.3.3. En resume
 
+
+            -- III.2.3.1. On commence par du facile
+            -- ------------------------------------
+  
 
 
 
