@@ -2120,19 +2120,225 @@ AND espece_id = 3;
             -- III.2.1.4. Et les autres especes?
 
 
+            -- Syntaxe:
+                SELECT ...
+                FROM nom_table
+                [WHERE condition]
+                GROUP BY nom_colonne;   
+
+                # Exemple 1 : comptons les lignes dans la table Animal, en regroupant sur le critère de l’espèce
+                # (donc avec la colonne espece_id).
+                    SELECT COUNT(*) AS nb_animaux
+                    FROM Animal
+                    GROUP BY espece_id;
+
+                # Exemple 2 : Même chose, mais on ne prend que les mâles cette fois-ci.
+                    SELECT COUNT(*) AS nb_males
+                    FROM Animal
+                    WHERE sexe = 'M'
+                    GROUP BY espece_id;
+
+                
+            -- III.4.1.1. Voir d'autres colonnes
+            -- ---------------------------------
+                SELECT espece_id, COUNT(*) AS nb_animaux
+                FROM Animal
+                GROUP BY espece_id;
+
+                SELECT nom_courant, COUNT(*) AS nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                GROUP BY nom_courant;
+
+
+            -- III.4.1.2. Colonnes selectionnees
+            -- ---------------------------------
+                -- III.4.1.2.1. La règle SQL
+                -- III.4.1.2.2. Le cas MySQL
+
+
+                -- III.4.1.2.1. La règle SQL
+                -- -------------------------
+
+                    # Lorsque l’on fait un groupement dans une requête, avec GROUP BY, on ne peut sélectionner que
+                    # deux types d’éléments dans la clause SELECT :
+                    # — une ou des colonnes ayant servi de critère pour le regroupement ;
+                    # — une fonction d’agrégation (agissant sur n’importe quelle colonne).
+
+                    # Cette règle est d’ailleurs logique. Imaginez la requête suivante :
+                        SELECT nom_courant, COUNT(*) AS nb_animaux -- , date_naissance
+                        FROM Animal
+                        INNER JOIN Espece ON Animal.espece_id = Espece.id
+                        GROUP BY nom_courant;
+
+                        SELECT Espece.id, nom_courant, nom_latin, COUNT(*) AS nb_animaux
+                        FROM Animal
+                        INNER JOIN Espece ON Animal.espece_id = Espece.id
+                        GROUP BY nom_courant, Espece.id, nom_latin;
+
+
+                -- III.4.1.2.2. Le cas MySQL (tsy mandeha amin'ny version recent mysql intsony io code io)
+                -- -------------------------
+
+                    
+
+            -- III.4.1.3. Tri de donnees
+            -- -------------------------
+                SELECT Espece.id, nom_courant, nom_latin, COUNT(*) AS nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                GROUP BY nom_courant desc Espece.id, nom_latin; -- On trie par ordre anti-alphabétique sur le nom_courant
+
+                SELECT Espece.id, nom_courant, nom_latin, COUNT(*) AS nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                GROUP BY nom_courant, Espece.id, nom_latin
+                ORDER BY nb_animaux;
+
+
+            -- III.2.1.4. Et les autres especes?
+            -- --------------------------------
+                SELECT Espece.nom_courant, COUNT(*) AS nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                GROUP BY nom_courant;
+
+                SELECT Espece.nom_courant, COUNT(*) AS nb_animaux
+                FROM Animal
+                RIGHT JOIN Espece ON Animal.espece_id = Espece.id -- RIGHT puisque la table Espece est à droite.
+                GROUP BY nom_courant;
+
+
+                SELECT Espece.nom_courant, COUNT(Animal.espece_id) AS nb_animaux
+                FROM Animal
+                RIGHT JOIN Espece ON Animal.espece_id = Espece.id
+                GROUP BY nom_courant;
+
+
+
+
         -- III.4.2. Regroupement sur un plusieurs criteres
         -- -----------------------------------------------
+            # Les deux requêtes suivantes permettent de savoir combien d’animaux de chaque espèce vous avez
+            # dans la table Animal, ainsi que combien de mâles et de femelles, toutes espèces confondues.
+                SELECT nom_courant, COUNT(*) as nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id 
+                GROUP BY nom_courant;
 
+                SELECT sexe, COUNT(*) as nb_animaux
+                FROM Animal
+                GROUP BY sexe;
+
+
+                # Exemple 1 : on regroupe d’abord sur l’espèce, puis sur le sexe.
+                    SELECT nom_courant, sexe, COUNT(*) as nb_animaux
+                    FROM Animal
+                    INNER JOIN Espece ON Espece.id = Animal.espece_id
+                    GROUP BY nom_courant, sexe;
+
+
+                # Exemple 2 : on regroupe d’abord sur le sexe, puis sur l’espèce.
+                    SELECT nom_courant, sexe, COUNT(*) as nb_animaux
+                    FROM Animal
+                    INNER JOIN Espece ON Espece.id = Animal.espece_id
+                    GROUP BY sexe,nom_courant;
 
 
         -- III.4.3. Super-agregats
         -- -----------------------
+            -- III.4.3.0.1. Exemple avec un critère de regroupement
+            -- III.4.3.0.2. Exemple avec deux critères de regroupement
+            -- III.4.3.0.3. NULL, c’est pas joli
+
+
+            -- III.4.3.0.1. Exemple avec un critère de regroupement
+            -- ----------------------------------------------------
+                SELECT nom_courant, COUNT(*) as nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                GROUP BY nom_courant WITH ROLLUP;                
         
+
+            -- III.4.3.0.2. Exemple avec deux critères de regroupement
+            -- -------------------------------------------------------
+                SELECT nom_courant, sexe, COUNT(*) as nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                WHERE sexe IS NOT NULL
+                GROUP BY nom_courant, sexe WITH ROLLUP;
+
+
+                SELECT nom_courant, sexe, COUNT(*) as nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                WHERE sexe IS NOT NULL
+                GROUP BY sexe, nom_courant WITH ROLLUP;
+
+
+
+            -- III.4.3.0.3. NULL, c’est pas joli
+            -- ---------------------------------
+                -- Exemples :
+                SELECT COALESCE(1, NULL, 3, 4); -- 1
+                SELECT COALESCE(NULL, 2); -- 2
+                SELECT COALESCE(NULL, NULL, 3); -- 3 
+                
+                -- Voici comment l’utiliser dans le cas des super-agrégats.
+
+                SELECT COALESCE(nom_courant, 'Total'), COUNT(*) as nb_animaux
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                GROUP BY nom_courant WITH ROLLUP;
+
+                -- Exemple : groupons sur le sexe, sans éliminer les lignes pour lesquelles le sexe n’est pas défini.
+                    SELECT COALESCE(sexe, 'Total'), COUNT(*) as nb_animaux
+                    FROM Animal
+                    INNER JOIN Espece ON Espece.id = Animal.espece_id
+                    GROUP BY sexe WITH ROLLUP;
+
+
 
         -- III.4.4. Conditions sur les fonctions d'agregation
         -- --------------------------------------------------
             -- III.4.4.1. Optimisation
             -- III.4.4.2. En resume
+                SELECT nom_courant, COUNT(*)
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                WHERE COUNT(*) > 15
+                GROUP BY nom_courant;
+
+                -- Il faut utiliser une clause spéciale : HAVING. Cette clause se place juste après le GROUP BY.
+
+                SELECT nom_courant, COUNT(*)
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                GROUP BY nom_courant
+                HAVING COUNT(*) > 15;
+                
+
+                SELECT nom_courant, COUNT(*) as nombre
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                GROUP BY nom_courant
+                HAVING nombre > 15;
+
+
+            -- III.4.4.1. Optimisation
+            -- -----------------------
+                SELECT nom_courant, COUNT(*) as nombre
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                GROUP BY nom_courant
+                HAVING nombre > 6 AND SUBSTRING(nom_courant, 1, 1) = 'C'; -- Deux conditions dans HAVING
+                
+                SELECT nom_courant, COUNT(*) as nombre
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                WHERE SUBSTRING(nom_courant, 1, 1) = 'C' -- Une condition dans WHERE
+                GROUP BY nom_courant
+                HAVING nombre > 6; -- Et une dans HAVING
 
 
 
