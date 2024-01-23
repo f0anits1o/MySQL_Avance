@@ -1899,8 +1899,70 @@ AND espece_id = 3;
 
             -- III.2.3.1. On commence par du facile
             -- ------------------------------------
-  
+                -- III.2.3.1.1. 1. Afficher une phrase donnant le prix de l’espèce, pour chaque espèce
+                -- III.2.3.1.2. 2. Afficher les chats dont la deuxième lettre du nom est un ”a”
 
+
+                -- III.2.3.1.1. 1. Afficher une phrase donnant le prix de l’espèce, pour chaque espèce
+                -- -----------------------------------------------------------------------------------
+                    SELECT CONCAT('Un(e) ', nom_courant, ' coûte ', prix, ' euros.') AS Solution
+                    FROM Espece;
+
+                    -- OU
+
+                    SELECT CONCAT_WS(' ','Un(e)', nom_courant, 'coûte', prix, 'euros.') AS Solution
+                    FROM Espece;
+
+
+                -- III.2.3.1.2. 2. Afficher les chats dont la deuxième lettre du nom est un ”a”
+                -- ----------------------------------------------------------------------------
+                    SELECT Animal.nom, Espece.nom_courant
+                    FROM Animal
+                    INNER JOIN Espece ON Animal.espece_id = Espece.id
+                    WHERE Espece.nom_courant = 'Chat'
+                    AND SUBSTRING(nom, 2, 1) = 'a';
+
+
+
+            
+            
+            -- III.2.3.2. Puis on corse un peu
+            -- -------------------------------
+                -- III.2.3.2.1. 1. Afficher les noms des perroquets en remplaçant les ”a” par ”@” et les ”e” par ”3” pour en faire des perroquets Kikoolol
+                -- III.2.3.2.2. 2. Afficher les chiens dont le nom a un nombre pair de lettres
+
+
+                -- III.2.3.2.1. 1. Afficher les noms des perroquets en remplaçant les ”a” par ”@” et les ”e” par ”3” pour en faire des perroquets Kikoolol
+                -- ---------------------------------------------------------------------------------------------------------------------------------------
+                    SELECT REPLACE(REPLACE(nom, 'a', '@'), 'e', '3') AS Solution
+                    FROM Animal
+                    INNER JOIN Espece ON Animal.espece_id = Espece.id
+                    WHERE Espece.nom_courant LIKE 'Perroquet%';
+
+
+                -- III.2.3.2.2. 2. Afficher les chiens dont le nom a un nombre pair de lettres
+                -- ---------------------------------------------------------------------------
+                    SELECT nom, nom_courant
+                    FROM Animal
+                    INNER JOIN Espece ON Animal.espece_id = Espece.id
+                    WHERE nom_courant = 'Chien'
+                    AND CHAR_LENGTH(nom)%2 = 0;
+
+                    -- OU
+
+                    SELECT nom, nom_courant
+                    FROM Animal
+                    INNER JOIN Espece ON Animal.espece_id = Espece.id
+                    WHERE nom_courant = 'Chien'
+                    AND CHAR_LENGTH(nom) MOD 2 = 0;
+
+                    -- OU
+
+                    SELECT nom, nom_courant
+                    FROM Animal
+                    INNER JOIN Espece ON Animal.espece_id = Espece.id
+                    WHERE nom_courant = 'Chien'
+                    AND MOD(CHAR_LENGTH(nom),2) = 0; 
 
 
 
