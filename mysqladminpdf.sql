@@ -2446,8 +2446,127 @@ AND espece_id = 3;
                 GROUP BY Espece.nom_courant WITH ROLLUP;
 
 
+#########################################
+#                                       #
+#           Quatrième partie            #
+#                                       #
+#    Fonctions : manipuler les dates    #
+#                                       #
+#########################################
 
 
+-- V. Fonctions: manipuler les dates
+-- ---------------------------------
+    -- IV.1. Obtenir la date/l'heure actuelle
+    -- IV.2. Formater une donnees temporelle
+    -- IV.3. Calculs sur les donnees temporelles
+    -- IV.4. Exercices
+
+
+    -- IV.1. Obtenir la date/l'heure actuelle
+    -- --------------------------------------
+        -- IV.1.1. Rappels
+        -- IV.1.2. Date actuelle
+        -- IV.1.3. Heure actuelle
+        -- IV.1.4. Date et heure actuelle
+
+    
+        -- IV.1.1. Rappels
+        -- ---------------
+            -- IV.1.1.1. Date
+            -- IV.1.1.2. Heure
+            -- IV.1.1.3. Date et heure
+            -- IV.1.1.4. Timestamp
+            -- IV.1.1.5. Annee
+
+
+        -- IV.1.2. Date actuelle
+        -- ---------------------
+
+
+
+        -- IV.1.3. Heure actuelle
+        -- ----------------------
+
+        
+
+        -- IV.1.4. Date et heure actuelle
+        -- ------------------------------
+            -- IV.1.4.1. Les fonctions
+            -- IV.1.4.2. Qui peut le plus, peut le moins
+            -- IV.1.4.3. Timestamp Unix
+            -- IV.1.4.4. En resume
+
+
+
+
+    -- IV.2. Formater une donnees temporelle
+    -- -------------------------------------
+        -- IV.2.1. Extraire une information precise
+        -- IV.2.2. Formater une date facilement
+        -- IV.2.3. Creer une date a partir d'une chaine de caracteres
+
+
+        -- IV.2.1. Extraire une information precise
+        -- ----------------------------------------
+            -- IV.2.1.1. Informations sur la date
+            -- IV.2.1.2. Information sur l'heure
+
+        
+        -- IV.2.2. Formater une date facilement
+        -- -----------------------------------
+            -- IV.2.2.1. Format 
+            -- IV.2.2.2. Exemples
+            -- IV.2.2.3. Fonction supplementaire pour l'heure
+            -- IV.2.2.4. Fonction standards
+
+
+        -- IV.2.3. Creer une date a partir d'une chaine de caracteres
+        -- ----------------------------------------------------------
+            -- IV.2.3.1. En resume
+
+
+
+    -- IV.3. Calculs sur les donnees temporelles
+    -- -----------------------------------------
+        -- IV.3.1. Difference entre deux dates/heures
+        -- IV.3.2. Ajout et retrait d'une intervalle de temps
+        -- IV.3.3. Divers
+
+
+        -- IV.3.1. Difference entre deux dates/heures
+        -- ------------------------------------------
+
+
+
+
+
+        -- IV.3.2. Ajout et retrait d'une intervalle de temps
+        -- --------------------------------------------------
+            -- IV.3.2.1. Ajout d'un intervalle de temps
+            -- IV.3.2.2. Soustraction d'un intervalle de temps
+
+
+
+
+        -- IV.3.3. Divers
+        -- --------------
+            -- IV.3.3.1. Creer une date/heure a partir d'autres informations
+            -- IV.3.3.2. Convertir un time en secondes et vice versa.
+            -- IV.3.3.3. Dernier jour du mois
+            -- IV.3.3.4. En resume
+
+
+            
+
+
+
+
+    -- IV.4. Exercices
+    -- ---------------
+        -- IV.4.1. Commencons par le format
+        -- IV.4.2. Passons aux calculs
+        -- IV.4.3. Et pour finir, melangons le tout
 
 
 -- ------------ --
