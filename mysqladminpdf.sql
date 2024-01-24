@@ -8236,3 +8236,6 @@ group by year(Adoption.date_reservation),Espece.id;
             -- VII.3.5.1. Emplacement du fichier
             -- VII.3.5.2. Structure du fichier
             -- VII.3.5.3. En resume
+
+
+    # vita vaky ny 24/01/24 13h58 ( misaotra Jesoa fa tsy noho heriko na ny tanjako no navitako an'izay fa noho ny fahasoavanao taminko. Haleloia Deraina Jesosy)
