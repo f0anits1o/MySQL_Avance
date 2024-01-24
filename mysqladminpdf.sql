@@ -2561,21 +2561,23 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
     
         -- IV.1.1. Rappels
         -- ---------------
-            -- IV.1.1.1. Date
+            -- IV.1.1.1. Date ('1001-01-01' à '9999-12-31')
             -- IV.1.1.2. Heure
             -- IV.1.1.3. Date et heure
             -- IV.1.1.4. Timestamp
             -- IV.1.1.5. Annee
 
+            # lesona be
 
         -- IV.1.2. Date actuelle
         -- ---------------------
+            select curdate(), current_date(), current_date;
 
 
 
         -- IV.1.3. Heure actuelle
         -- ----------------------
-
+            select curtime(), current_time(), current_time;
         
 
         -- IV.1.4. Date et heure actuelle
@@ -2586,6 +2588,50 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
             -- IV.1.4.4. En resume
 
 
+            -- IV.1.4.1. Les fonctions
+            -- -----------------------
+                -- IV.1.4.1.1. Now et sysdate()
+                -- IV.1.4.1.2. Et les autres
+
+
+                -- IV.1.4.1.1. Now et sysdate()
+                -- ----------------------------
+                    select now(), sysdate();
+
+
+                -- IV.1.4.1.2. Et les autres
+                -- -------------------------
+                    select localtime, current_timestamp(), localtimestamp;
+
+
+
+            -- IV.1.4.2. Qui peut le plus, peut le moins
+            -- -----------------------------------------
+                -- IV.1.4.2.1. Exemple
+
+                -- IV.1.4.2.1. Exemple
+                -- -------------------
+                
+                -- Création d'une table de test toute simple
+                CREATE TABLE testDate (
+                dateActu DATE,
+                timeActu TIME,
+                datetimeActu DATETIME
+                );
+
+                INSERT INTO testDate VALUES (NOW(), NOW(), NOW());
+
+                SELECT *
+                FROM testDate;
+
+
+            -- IV.1.4.3. Timestamp Unix
+            -- ------------------------
+                 SELECT UNIX_TIMESTAMP();
+
+            -- IV.1.4.4. En resume
+            -- -------------------
+                # lesona be
 
 
     -- IV.2. Formater une donnees temporelle
@@ -2600,6 +2646,7 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
             -- IV.2.1.1. Informations sur la date
             -- IV.2.1.2. Information sur l'heure
 
+            -- IV.1.4.3. Timestamp Unix
         
         -- IV.2.2. Formater une date facilement
         -- -----------------------------------
