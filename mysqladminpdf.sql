@@ -3153,9 +3153,6 @@ heureCree;
                                 OR mere_id IS NOT NULL;
 
 
-
-
-
 -- ------------ --
 -- Transactions --
 -- ------------ --
