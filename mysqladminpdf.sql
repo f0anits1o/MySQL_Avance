@@ -1,4 +1,4 @@
--- Active: 1705929800065@@127.0.0.1@3306@mysqladminpdf
+-- Active: 1706076126421@@127.0.0.1@3306@mysqladminpdf
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -2358,6 +2358,44 @@ AND espece_id = 3;
             -- III.5.1.5. 5. Combien avons-nous de perroquets male et femelles, et quels sont leurs noms (en une seule requete bien sur)?
 
 
+            -- III.5.1.1. 1. Combien de races avons-nous dans la table race?
+            -- -------------------------------------------------------------
+                SELECT COUNT(*)
+                FROM Race;
+   
+
+            -- III.5.1.2. 2. De combien de chiens connaissons-nous le pere?
+            -- ------------------------------------------------------------
+                SELECT COUNT(pere_id)
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                WHERE Espece.nom_courant = 'Chien';
+
+
+            -- III.5.1.3. 3. Quelle est la date de naissance de notre plus jeune femelle?
+            -- --------------------------------------------------------------------------
+                SELECT MAX(date_naissance)
+                FROM Animal
+                WHERE sexe = 'F';
+
+
+            -- III.5.1.4. 4. En moyenne, quel est le prix d'un chien ou d'un chat de race, par espece et en general?
+            -- -----------------------------------------------------------------------------------------------------
+                SELECT nom_courant AS Espece, AVG(Race.prix) AS prix_moyen
+                FROM Race
+                INNER JOIN Espece ON Race.espece_id = Espece.id
+                WHERE Espece.nom_courant IN ('Chat', 'Chien')
+                GROUP BY Espece.nom_courant WITH ROLLUP;
+
+
+            -- III.5.1.5. 5. Combien avons-nous de perroquets male et femelles, et quels sont leurs noms (en une seule requete bien sur)?
+            -- --------------------------------------------------------------------------------------------------------------------------
+                SELECT sexe, COUNT(*), GROUP_CONCAT(nom SEPARATOR ', ')
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                WHERE nom_courant = 'Perroquet amazone'
+                GROUP BY sexe;
+
 
         -- III.5.2. Vers le complexe
         -- -------------------------
@@ -2365,6 +2403,47 @@ AND espece_id = 3;
             -- III.5.2.2. 2. Quelles sont les especes (triees par ordre alphabetique du nom latin) dont nous possedons moins de cinq males?
             -- III.5.2.3. 3. Combien de males et de femelles de chaque avons-nous, avec un compt total intermediaire pour les races (males et femelles confondues) et pour les especes ? Afficher le nom de la race et le nom courant de l'espece.
             -- III.5.2.4. 4. Quel serait le cout, par espece et au total, de l'adoption de Parlotte, Spoutnik, Caribou, Cartouche, Cali, Canaille, Yoda, Zambo, et Lulla?
+
+
+            -- III.5.2.1. 1. Quelles sont les races dont nous ne possedons aucun individu?
+            -- ---------------------------------------------------------------------------
+                SELECT Race.nom, COUNT(Animal.race_id) AS nombre
+                FROM Race
+                LEFT JOIN Animal ON Animal.race_id = Race.id
+                GROUP BY Race.nom
+                HAVING nombre = 0;    
+        
+        
+            -- III.5.2.2. 2. Quelles sont les especes (triees par ordre alphabetique du nom latin) dont nous possedons moins de cinq males?
+            -- ----------------------------------------------------------------------------------------------------------------------------
+                SELECT Espece.nom_latin, COUNT(espece_id) AS nombre
+                FROM Espece
+                LEFT JOIN Animal ON Animal.espece_id = Espece.id
+                WHERE sexe = 'M' OR Animal.id IS NULL
+                GROUP BY Espece.nom_latin
+                HAVING nombre < 5;
+
+        
+        
+            -- III.5.2.3. 3. Combien de males et de femelles de chaque avons-nous, avec un compt total intermediaire pour les races (males et femelles confondues) et pour les especes ? Afficher le nom de la race et le nom courant de l'espece.
+            -- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                SELECT Animal.sexe, Race.nom, Espece.nom_courant, COUNT(*) AS nombre
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                INNER JOIN Race ON Animal.race_id = Race.id
+                WHERE Animal.sexe IS NOT NULL
+                GROUP BY Espece.nom_courant, Race.nom, sexe WITH ROLLUP;
+
+        
+        
+            -- III.5.2.4. 4. Quel serait le cout, par espece et au total, de l'adoption de Parlotte, Spoutnik, Caribou, Cartouche, Cali, Canaille, Yoda, Zambo, et Lulla?
+            -- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+                SELECT Espece.nom_courant, SUM(COALESCE(Race.prix, Espece.prix)) AS somme
+                FROM Animal
+                INNER JOIN Espece ON Espece.id = Animal.espece_id
+                LEFT JOIN Race ON Race.id = Animal.race_id
+                WHERE Animal.nom IN ('Parlotte', 'Spoutnik', 'Caribou', 'Cartouche', 'Cali', 'Canaille', 'Yoda', 'Zambo', 'Lulla')
+                GROUP BY Espece.nom_courant WITH ROLLUP;
 
 
 
