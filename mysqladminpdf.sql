@@ -2645,9 +2645,82 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
         -- ----------------------------------------
             -- IV.2.1.1. Informations sur la date
             -- IV.2.1.2. Information sur l'heure
-
             -- IV.1.4.3. Timestamp Unix
+
         
+            -- IV.2.1.1. Informations sur la date
+            -- ----------------------------------
+                -- IV.2.1.1.1. Extraire la partie DATE
+                -- IV.2.1.1.2. Le jour  
+                -- IV.2.1.1.3. La semaine
+                -- IV.2.1.1.4. Le mois
+                -- IV.2.1.1.5. L’année
+
+
+                -- IV.2.1.1.1. Extraire la partie DATE
+                -- -----------------------------------
+                    SELECT nom, date_naissance,
+                    DATE(date_naissance) AS uniquementDate
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+                -- IV.2.1.1.2. Le jour 
+                -- -------------------
+                    SELECT nom, DATE(date_naissance) AS date_naiss,
+                    DAY(date_naissance) AS jour,
+                    DAYOFMONTH(date_naissance) AS jour,
+                    DAYOFWEEK(date_naissance) AS jour_sem,
+                    WEEKDAY(date_naissance) AS jour_sem2,
+                    DAYNAME(date_naissance) AS nom_jour,
+                    DAYOFYEAR(date_naissance) AS jour_annee
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+                    SET lc_time_names = 'fr_FR';
+
+                    SELECT nom, date_naissance,
+                    DAYNAME(date_naissance) AS jour_semaine
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+                -- IV.2.1.1.3. La semaine
+                -- ----------------------
+                    SELECT nom, date_naissance, WEEK(date_naissance) AS semaine, WEEKOFYEAR(date_naissance) AS semaine2, YEARWEEK(date_naissance) AS semaine_annee
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+
+                -- IV.2.1.1.4. Le mois
+                -- -------------------
+                    SELECT nom, date_naissance, MONTH(date_naissance) AS numero_mois,
+                    MONTHNAME(date_naissance) AS nom_mois
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+                -- IV.2.1.1.5. L’année
+                -- -------------------
+                    SELECT nom, date_naissance, YEAR(date_naissance)
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+                
+            -- IV.2.1.2. Information sur l'heure
+            -- ---------------------------------
+                SELECT nom, date_naissance,
+                TIME(date_naissance) AS time_complet,
+                HOUR(date_naissance) AS heure,
+                MINUTE(date_naissance) AS minutes,
+                SECOND(date_naissance) AS secondes
+                FROM Animal
+                WHERE espece_id = 4;
+
+
         -- IV.2.2. Formater une date facilement
         -- -----------------------------------
             -- IV.2.2.1. Format 
@@ -2656,9 +2729,62 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
             -- IV.2.2.4. Fonction standards
 
 
+                SELECT nom, date_naissance, CONCAT_WS(' ', 'le', DAYNAME(date_naissance), DAY(date_naissance), MONTHNAME(date_naissance), YEAR(date_naissance)) AS jolie_date
+                FROM Animal
+                WHERE espece_id = 4;
+
+            -- IV.2.2.1. Format (lesona be)
+            -- ----------------------------
+
+            -- IV.2.2.2. Exemples
+            -- ------------------
+                -- IV.2.2.2.1. Même résultat que précédemment…
+                -- IV.2.2.2.2. Autres exemples
+
+
+                -- IV.2.2.2.1. Même résultat que précédemment…
+                -- -------------------------------------------
+                    SELECT nom, date_naissance, DATE_FORMAT(date_naissance, 'le %W %e %M %Y') AS jolie_date
+                    FROM Animal
+                    WHERE espece_id = 4;
+
+
+                -- IV.2.2.2.2. Autres exemples
+                -- ---------------------------
+                    SELECT DATE_FORMAT(NOW(), "Nous sommes aujourd'hui le %d %M de l'année %Y. Il est actuellement %l heures et %i minutes.") AS Top_date_longue;
+
+                    SELECT DATE_FORMAT(NOW(), '%d %b. %y - %r') AS Top_date_courte;
+
+
+
+            -- IV.2.2.3. Fonction supplementaire pour l'heure
+            -- ----------------------------------------------
+                -- Sur une DATETIME
+                SELECT TIME_FORMAT(NOW(), '%r') AS sur_datetime,
+                TIME_FORMAT(CURTIME(), '%r') AS sur_time,
+                TIME_FORMAT(NOW(), '%M %r') AS mauvais_specificateur,
+                TIME_FORMAT(CURDATE(), '%r') AS sur_date;
+
+
+            -- IV.2.2.4. Fonction standards
+            -- ----------------------------
+                SELECT DATE_FORMAT(NOW(), GET_FORMAT(DATE, 'EUR')) AS date_eur,
+                DATE_FORMAT(NOW(), GET_FORMAT(TIME, 'JIS')) AS heure_jis,
+                DATE_FORMAT(NOW(), GET_FORMAT(DATETIME, 'USA')) AS date_heure_usa;
+
+
         -- IV.2.3. Creer une date a partir d'une chaine de caracteres
         -- ----------------------------------------------------------
-            -- IV.2.3.1. En resume
+            -- IV.2.3.1. En resume (lesona be)
+
+                SELECT STR_TO_DATE('03/04/2011 à 09h17', '%d/%m/%Y à %Hh%i') AS StrDate,
+                STR_TO_DATE('15blabla', '%Hblabla') as StrTime;
+
+                SELECT STR_TO_DATE('11.21.2011', GET_FORMAT(DATE, 'USA')) AS date_usa,
+                STR_TO_DATE('12.34.45', GET_FORMAT(TIME, 'EUR')) AS heure_eur,
+                STR_TO_DATE('20111027133056', GET_FORMAT(TIMESTAMP, 'INTERNAL')) AS date_heure_int;
+
+
 
 
 
@@ -2671,8 +2797,17 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
 
         -- IV.3.1. Difference entre deux dates/heures
         -- ------------------------------------------
+            -- IV.3.1.0.1. DATEDIFF()
+            -- IV.3.1.0.2. TIMEDIFF()
+            -- IV.3.1.0.3. TIMESTAMPDIFF()
 
 
+            -- IV.3.1.0.1. DATEDIFF()
+            -- ----------------------
+                SELECT TIMESTAMPDIFF(DAY, '2011-11-10', '2011-12-25') AS nb_jours,
+                TIMESTAMPDIFF(HOUR,'2011-11-10', '2011-12-25 22:00:00') AS nb_heures_def,
+                TIMESTAMPDIFF(HOUR,'2011-11-10 14:00:00', '2011-12-25 22:00:00') AS nb_heures,
+                TIMESTAMPDIFF(QUARTER,'2011-11-10 14:00:00', '2012-08-25 22:00:00') AS nb_trimestres;
 
 
 
@@ -2682,6 +2817,83 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
             -- IV.3.2.2. Soustraction d'un intervalle de temps
 
 
+            -- IV.3.2.1. Ajout d'un intervalle de temps
+            -- ----------------------------------------
+                -- IV.3.2.1.1. ADDDATE()
+                -- IV.3.2.1.2. DATE_ADD()
+                -- IV.3.2.1.3. Opérateur +
+                -- IV.3.2.1.4. TIMESTAMPADD()
+                -- IV.3.2.1.5. ADDTIME()
+                
+
+
+                -- IV.3.2.1.1. ADDDATE()
+                -- ---------------------
+                    SELECT ADDDATE('2011-05-21', INTERVAL 3 MONTH) AS date_interval, -- Avec DATE et INTERVAL
+                    ADDDATE('2011-05-21 12:15:56', INTERVAL '3 02:10:32' DAY_SECOND) AS datetime_interval, -- Avec DATETIME et INTERVAL
+                    ADDDATE('2011-05-21', 12) AS date_nombre_jours, -- Avec DATE et nombre de jours
+                    ADDDATE('2011-05-21 12:15:56', 42) AS datetime_nombre_jours; -- Avec DATETIME et nombre de jours    
+
+
+                -- IV.3.2.1.2. DATE_ADD()
+                -- ----------------------
+                    SELECT 
+                    DATE_ADD ('2011-05-21', INTERVAL 3 MONTH) AS avec_date, -- Avec DATE
+                    DATE_ADD('2011-05-21 12:15:56', INTERVAL '3 02:10:32' DAY_SECOND) AS avec_datetime; -- Avec DATETIME                    
+
+
+                -- IV.3.2.1.3. Opérateur +
+                -- -----------------------
+                    SELECT '2011-05-21' + INTERVAL 5 DAY AS droite,
+                    -- Avec DATE et intervalle à droite
+                    INTERVAL '3 12' DAY_HOUR + '2011-05-21 12:15:56' AS gauche;
+                    -- Avec DATETIME et intervalle à gauche
+
+
+                -- IV.3.2.1.4. TIMESTAMPADD()
+                -- --------------------------
+                    SELECT TIMESTAMPADD(DAY, 5, '2011-05-21') AS avec_date,
+                    -- Avec DATE
+                    TIMESTAMPADD(MINUTE, 34, '2011-05-21 12:15:56') AS avec_datetime; -- Avec DATETIME                   
+
+
+                -- IV.3.2.1.5. ADDTIME()
+                -- ---------------------
+                    SELECT NOW() AS Maintenant, ADDTIME(NOW(), '01:00:00') AS DansUneHeure, -- Avec un DATETIME
+                    CURRENT_TIME() AS HeureCourante, ADDTIME(CURRENT_TIME(), '03:20:02') AS PlusTard; -- Avec un TIME
+
+
+            -- IV.3.2.2. Soustraction d'un intervalle de temps
+            -- -----------------------------------------------
+                -- IV.3.2.2.1. SUBDATE(), DATE_SUB() et SUBTIME()
+                -- IV.3.2.2.2. Operateur -
+                -- IV.3.2.2.3. Soustraire, c’est ajouter un négatif
+
+
+                -- IV.3.2.2.1. SUBDATE(), DATE_SUB() et SUBTIME()
+                -- ---------------------------------------------
+                    SELECT SUBDATE('2011-05-21 12:15:56', INTERVAL '3 02:10:32' DAY_SECOND) AS SUBDATE1,
+                    SUBDATE('2011-05-21', 12) AS SUBDATE2,
+                    DATE_SUB('2011-05-21', INTERVAL 3 MONTH) AS DATE_SUB;
+
+                    SELECT SUBTIME('2011-05-21 12:15:56', '18:35:15') AS SUBTIME1,
+                    SUBTIME('12:15:56', '8:35:15') AS SUBTIME2;
+
+
+
+                -- IV.3.2.2.2. Operateur -
+                -- -----------------------
+                    SELECT '2011-05-21' - INTERVAL 5 DAY;
+
+
+                -- IV.3.2.2.3. Soustraire, c’est ajouter un négatif
+                -- ------------------------------------------------
+                    SELECT ADDDATE(NOW(), INTERVAL -3 MONTH) AS ajout_negatif, SUBDATE(NOW(), INTERVAL 3 MONTH) AS retrait_positif;
+                    
+                    SELECT DATE_ADD(NOW(), INTERVAL 4 HOUR) AS ajout_positif, DATE_SUB(NOW(), INTERVAL -4 HOUR) AS retrait_negatif;
+                    
+                    SELECT NOW() + INTERVAL -15 MINUTE AS ajout_negatif, NOW() -INTERVAL 15 MINUTE AS retrait_positif;
+  
 
 
         -- IV.3.3. Divers
@@ -2692,8 +2904,38 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
             -- IV.3.3.4. En resume
 
 
-            
+            -- IV.3.3.1. Creer une date/heure a partir d'autres informations
+            -- -------------------------------------------------------------
+                -- IV.3.3.1.1. À partir d’un timestamp Unix
+                -- IV.3.3.1.2. À partir de différents éléments d’une date/heure
+                       
 
+                -- IV.3.3.1.1. À partir d’un timestamp Unix
+                -- ----------------------------------------
+                    SELECT FROM_UNIXTIME(1325595287);
+
+                    SELECT UNIX_TIMESTAMP('2012-01-03 13:54:47');
+
+
+                -- IV.3.3.1.2. À partir de différents éléments d’une date/heure
+                -- ------------------------------------------------------------
+                    SELECT MAKEDATE(2012, 60) AS 60eJour2012, MAKETIME(3, 45, 34) AS
+heureCree;
+
+            -- IV.3.3.2. Convertir un time en secondes et vice versa.
+            -- -----------------------------------------------------
+                SELECT SEC_TO_TIME(102569), TIME_TO_SEC('01:00:30');
+
+
+            -- IV.3.3.3. Dernier jour du mois
+            -- ------------------------------
+                SELECT LAST_DAY('2012-02-03') AS fevrier2012,
+                LAST_DAY('2100-02-03') AS fevrier2100;
+
+
+
+            -- IV.3.3.4. En resume (lesona be)
+            -- -------------------
 
 
 
@@ -2702,6 +2944,216 @@ ALTER TABLE Animal ADD CONSTRAINT fk_pere_id FOREIGN KEY (pere_id) REFERENCES An
         -- IV.4.1. Commencons par le format
         -- IV.4.2. Passons aux calculs
         -- IV.4.3. Et pour finir, melangons le tout
+
+
+        -- IV.4.1. Commencons par le format
+        -- --------------------------------
+            -- IV.4.1.0.1. 1. Sélectionner tous les animaux nés en juin.
+            -- IV.4.1.0.2. 2. Sélectionner tous les animaux nés dans les huit premières semaines d’une année.
+            -- IV.4.1.0.3. 3. Afficher le jour (en chiffres) et le mois de naissance (en toutes lettres) des tortues et des chats nés avant 2007 (en deux colonnes).
+            -- IV.4.1.0.4. 4. Même chose qu’à la question précédente, mais en une seule colonne.
+            -- IV.4.1.0.5. 5. Sélectionner tous les animaux nés en avril, mais pas un 24 avril, triés par
+                              # heure de naissance décroissante (heure dans le sens commun du terme, donc
+                              # heure, minutes, secondes) et afficher leur date de naissance suivant le même
+                              # format que l’exemple ci-dessous.
+
+
+
+            -- IV.4.1.0.1. 1. Sélectionner tous les animaux nés en juin.
+            -- --------------------------------------------------------
+                SELECT id, date_naissance, nom
+                FROM Animal
+                WHERE MONTH(date_naissance) = 6;
+               
+
+            -- IV.4.1.0.2. 2. Sélectionner tous les animaux nés dans les huit premières semaines d’une année.
+            -- ---------------------------------------------------------------------------------------------
+                SELECT id, date_naissance, nom
+                FROM Animal
+                WHERE WEEKOFYEAR(date_naissance) < 9;
+            
+            
+            -- IV.4.1.0.3. 3. Afficher le jour (en chiffres) et le mois de naissance (en toutes lettres) des tortues et des chats nés avant 2007 (en deux colonnes).
+            -- -----------------------------------------------------------------------------------------------------------------------------------------------------
+                SELECT DAY(date_naissance), MONTHNAME(date_naissance)
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                WHERE Espece.nom_courant IN ('Chat', 'Tortue d''Hermann')
+                AND YEAR(date_naissance) < 2007;
+            
+            
+            -- IV.4.1.0.4. 4. Même chose qu’à la question précédente, mais en une seule colonne.
+            -- --------------------------------------------------------------------------------
+                SELECT DATE_FORMAT(date_naissance, '%e %M')
+                FROM Animal
+                INNER JOIN Espece ON Animal.espece_id = Espece.id
+                WHERE Espece.nom_courant IN ('Chat', 'Tortue d''Hermann')
+                AND YEAR(date_naissance) < 2007;            
+            
+
+            -- IV.4.1.0.5. 5. Sélectionner tous les animaux nés en avril, mais pas un 24 avril, triés par
+                              # heure de naissance décroissante (heure dans le sens commun du terme, donc
+                              # heure, minutes, secondes) et afficher leur date de naissance suivant le même
+                              # format que l’exemple ci-dessous.
+                SELECT DATE_FORMAT(date_naissance, '%e %M, à %lh%i%p, en l''an %Y après J.C.') AS jolie_date
+                FROM Animal
+                WHERE MONTH(date_naissance) = 4
+                AND DAY(date_naissance) <> 24
+                ORDER BY TIME(date_naissance) DESC;
+
+
+        -- IV.4.2. Passons aux calculs
+        -- ---------------------------
+            -- IV.4.2.0.1. 1. Moka était censé naître le 27 février 2008. Calculer le nombre de jours de
+                              # retard de sa naissance.
+            -- IV.4.2.0.2. 2. Afficher la date à laquelle chaque perroquet (espece_id = 4) fêtera son 25e
+                              # anniversaire.
+            -- IV.4.2.0.3. 3. Sélectionner les animaux nés dans un mois contenant exactement 29 jours.
+
+            -- IV.4.2.0.4. 4. Après douze semaines, un chaton est sevré (sauf exception bien sûr). Afficher
+                              # la date à partir de laquelle les chats (espece_id = 2) de l’élevage peuvent être
+                              # adoptés (qu’il s’agisse d’une date dans le passé ou dans le futur).
+            -- IV.4.2.0.5. 5. Rouquine, Zira, Bouli et Balou (id 13, 18, 20 et 22 respectivement) font partie
+                              # de la même portée. Calculer combien de temps, en minutes, Balou est né avant
+                              # Zira.
+
+
+
+            -- IV.4.2.0.1. 1. Moka était censé naître le 27 février 2008. Calculer le nombre de jours de
+                              # retard de sa naissance.
+                SELECT DATEDIFF(date_naissance, '2008-02-27') AS retard
+                FROM Animal
+                WHERE nom = 'Moka';                             
+
+            
+            -- IV.4.2.0.2. 2. Afficher la date à laquelle chaque perroquet (espece_id = 4) fêtera son 25e
+                              # anniversaire.
+                SELECT DATE(ADDDATE(date_naissance, INTERVAL 25 YEAR)) AS Anniversaire
+                FROM Animal
+                WHERE espece_id = 4;            
+            
+            
+            -- IV.4.2.0.3. 3. Sélectionner les animaux nés dans un mois contenant exactement 29 jours.
+                SELECT id, date_naissance, nom
+                FROM Animal
+                WHERE DAY(LAST_DAY(date_naissance)) = 29;            
+            
+            
+            
+            -- IV.4.2.0.4. 4. Après douze semaines, un chaton est sevré (sauf exception bien sûr). Afficher
+                              # la date à partir de laquelle les chats (espece_id = 2) de l’élevage peuvent être
+                              # adoptés (qu’il s’agisse d’une date dans le passé ou dans le futur).
+                SELECT id, nom, DATE(DATE_ADD(date_naissance, INTERVAL 12 WEEK)) AS sevrage
+                FROM Animal
+                WHERE espece_id = 2;
+
+
+            
+            -- IV.4.2.0.5. 5. Rouquine, Zira, Bouli et Balou (id 13, 18, 20 et 22 respectivement) font partie
+                              # de la même portée. Calculer combien de temps, en minutes, Balou est né avant
+                              # Zira.
+                SELECT TIMESTAMPDIFF(MINUTE,
+                (SELECT date_naissance
+                FROM Animal
+                WHERE nom = 'Balou'),
+                (SELECT date_naissance
+                FROM Animal
+                WHERE nom = 'Zira'))
+                AS nb_minutes;
+
+
+
+        -- IV.4.3. Et pour finir, melangons le tout
+        -- ----------------------------------------
+            -- IV.4.3.0.1. 1. Rouquine, Zira, Bouli et Balou (id 13, 18, 20 et 22 respectivement) font partie
+                              # de la même portée. Calculer combien de temps, en minutes, s’est écoulé entre le
+                              # premier né et le dernier né de la portée            
+            -- IV.4.3.0.2. 2. Calculer combien d’animaux sont nés durant un mois pendant lequel les
+                              # moules sont les plus consommables (c’est-à-dire les mois finissant en ”bre”).
+            -- IV.4.3.0.3. 3. Pour les chiens et les chats (espece_id = 1 et espece_id = 2 respectivement),
+                              # afficher les différentes dates de naissance des portées d’au moins deux
+                              # individus (format JJ/MM/AAAA), ainsi que le nombre d’individus pour chacune
+                              # de ces portées. Attention, il n’est pas impossible qu’une portée de chats soit née
+                              # le même jour qu’une portée de chiens (il n’est pas non plus impossible que deux
+                              # portées de chiens naissent le même jour, mais on considère que ce n’est pas le
+                              # cas).  
+            -- IV.4.3.0.4. 4. Calculer combien de chiens (espece_id = 1) sont nés en moyenne chaque
+                              # année entre 2006 et 2010 (sachant qu’on a eu au moins une naissance chaque
+                              # année).
+            -- IV.4.3.0.5. 5. Afficher la date au format ISO du 5e anniversaire des animaux dont on connaît
+                              # soit le père, soit la mère.
+
+
+
+            -- IV.4.3.0.1. 1. Rouquine, Zira, Bouli et Balou (id 13, 18, 20 et 22 respectivement) font partie
+                              # de la même portée. Calculer combien de temps, en minutes, s’est écoulé entre le
+                              # premier né et le dernier né de la portée   
+                                    SELECT TIMESTAMPDIFF(MINUTE,
+                                    (
+                                    SELECT MIN(date_naissance)
+                                    FROM Animal
+                                    WHERE id IN (13, 18, 20, 22)
+                                    ),
+                                    (
+                                    SELECT MAX(date_naissance)
+                                    FROM Animal
+                                    WHERE id IN (13, 18, 20, 22)
+                                    )
+                                    ) AS nb_minutes;
+
+
+
+            -- IV.4.3.0.2. 2. Calculer combien d’animaux sont nés durant un mois pendant lequel les
+                              # moules sont les plus consommables (c’est-à-dire les mois finissant en ”bre”).
+                                    SELECT COUNT(*)
+                                    FROM Animal
+                                    WHERE MONTHNAME(date_naissance) LIKE '%bre';
+            
+  
+
+            -- IV.4.3.0.3. 3. Pour les chiens et les chats (espece_id = 1 et espece_id = 2 respectivement),
+                              # afficher les différentes dates de naissance des portées d’au moins deux
+                              # individus (format JJ/MM/AAAA), ainsi que le nombre d’individus pour chacune
+                              # de ces portées. Attention, il n’est pas impossible qu’une portée de chats soit née
+                              # le même jour qu’une portée de chiens (il n’est pas non plus impossible que deux
+                              # portées de chiens naissent le même jour, mais on considère que ce n’est pas le
+                              # cas). 
+
+                                    SELECT DATE_FORMAT(date_naissance, '%d/%m/%Y'), COUNT(*) as nb_individus
+                                    FROM Animal
+                                    WHERE espece_id IN (1, 2)
+                                    GROUP BY DATE(date_naissance), espece_id
+                                    HAVING nb_individus > 1;
+
+
+
+
+
+
+            -- IV.4.3.0.4. 4. Calculer combien de chiens (espece_id = 1) sont nés en moyenne chaque
+                              # année entre 2006 et 2010 (sachant qu’on a eu au moins une naissance chaque
+                              # année).
+                                SELECT AVG(nb)
+                                FROM (
+                                SELECT COUNT(*) AS nb
+                                FROM Animal
+                                WHERE espece_id = 1
+                                AND YEAR(date_naissance) >= 2006
+                                AND YEAR(date_naissance) <= 2010
+                                GROUP BY YEAR(date_naissance)
+                                ) AS tableIntermedaire;
+
+
+
+            -- IV.4.3.0.5. 5. Afficher la date au format ISO du 5e anniversaire des animaux dont on connaît
+                              # soit le père, soit la mère.
+                                SELECT DATE_FORMAT(DATE_ADD(date_naissance, INTERVAL 5 YEAR), GET_FORMAT(DATE, 'ISO')) AS dateIso
+                                FROM Animal
+                                WHERE pere_id IS NOT NULL
+                                OR mere_id IS NOT NULL;
+
+
+
 
 
 -- ------------ --
