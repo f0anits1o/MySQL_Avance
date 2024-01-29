@@ -171,12 +171,60 @@ create table test_tuto(
   -- ---------------------------------------
 
     select * from animal order by id limit 6;
-    
+
     select * from animal order by id limit 6 offset 6;
-    
+
     select * from animal order by id limit 6 offset 0;
-      
 
 
 
- 
+-- -------------------------------
+-- JOKER _ and % (\ ~ echapement)
+-- -------------------------------
+
+  -- Echapement
+    insert into animal value
+    (35, 'chat', 
+    'F', 
+    '2008-04-20 03:20:00','
+    bibla', 
+    'Sourde de l\'oreille droite 80%' );
+
+  -- Joker
+    select * from animal where commentaires like '%\%%';
+
+    select * from animal where nom not like '%a%';
+
+  --  Sensibilité à la casse
+    select * from animal where nom like '%ou%'; -- insensative case
+
+    select * from animal where nom like binary '%Ou%'; -- sensative case    
+  
+  -- RECHERCHE DANS LE NUMERIQUE
+    select * from animal
+    where id like "1%";
+
+    select count(*) from animal where id like '1%';  
+
+  -- Recherche dans un intervalle
+    select * from animal
+        where date_naissance <= '2009-03-23' AND
+        date_naissance >= '2008-01-05';
+
+    select * from animal where date_naissance between '2008-01-05' and '2009-03-23';
+  
+
+  # BETWEEN peut s’utiliser avec des dates, mais aussi avec des nombres (BETWEEN 0 AND 100) ou
+  # avec des chaînes de caractères (BETWEEN 'a' AND 'd') auquel cas c’est l’ordre alphabétique
+  # qui sera utilisé (toujours insensible à la casse sauf si l’on utilise des chaînes binaires : BETWEEN
+  # BINARY 'a' AND BINARY 'd'). Bien évidemment, on peut aussi exclure un intervalle avec NOT
+  # BETWEEN. 
+
+select * from animal where nom in ('Moka', 'bibla', 'Tortila', 'Balou', 'Dana', 'Redbul', 'Gingko');
+
+  -- Suppession (delete)
+    delete from animal where nom = 'Zoulou';
+
+  -- Modification (update)
+
+    update animal set sexe='F', nom='Pataude' where id=21;
