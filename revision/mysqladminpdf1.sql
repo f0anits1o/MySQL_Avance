@@ -1,4 +1,4 @@
--- Active: 1706482698208@@127.0.0.1@3306@elevage
+-- Active: 1706076126421@@127.0.0.1@3306@elevage
 create database elevage character set 'utf8';
 
 use elevage;
@@ -326,3 +326,113 @@ select * from animal;
   ALTER TABLE test_tuto ADD COLUMN fanampin_anarana VARCHAR(50) NOT NULL AFTER anarana;
   ALTER TABLE Test_tuto ADD INDEX ind_fanampin_anarana (fanampin_anarana);
   DESC TEST_TUTO;
+
+
+--  Ajout avec CREATE INDEX
+-- -------------------------
+
+##################### SYNTAXE ######################
+CREATE INDEX nom_index
+ON nom_table (colonne_index [, colonne2_index ...]); -- Crée unindex simple
+
+CREATE UNIQUE INDEX nom_index
+ON nom_table (colonne_index [, colonne2_index ...]); -- Crée un index UNIQUE
+
+CREATE FULLTEXT INDEX nom_index
+ON nom_table (colonne_index [, colonne2_index ...]); -- Crée un index FULLTEXT
+
+
+-- syntaxe UNIQUE
+-- --------------
+CREATE TABLE nom_table (
+colonne1 INT NOT NULL,
+colonne2 VARCHAR(40),
+colonne3 TEXT,
+CONSTRAINT [symbole_contrainte] UNIQUE [INDEX] ind_uni_col2
+(colonne2)
+);
+
+
+ALTER TABLE nom_table
+ADD CONSTRAINT [symbole_contrainte] UNIQUE ind_uni_col2 (colonne2);
+
+-- Suppression d’un index
+-- ----------------------
+ALTER TABLE nom_table
+DROP INDEX nom_index;
+
+################## Fin Syntaxe #####################
+
+
+CREATE INDEX ind_anarana ON Test_tuto (anarana);
+
+desc test_tuto;
+
+
+-- Insertion des donnees sur le table libre:
+-- -----------------------------------------
+
+CREATE TABLE Livre (
+id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+auteur VARCHAR(50),
+titre VARCHAR(200)
+) ENGINE = MyISAM;
+
+INSERT INTO Livre (auteur, titre)
+VALUES ('Daniel Pennac', 'Au bonheur des ogres'),
+('Daniel Pennac', 'La Fée Carabine'),
+('Daniel Pennac', 'Comme un roman'),
+('Daniel Pennac', 'La Petite marchande de prose'),
+('Jacqueline Harpman', 'Le Bonheur est dans le crime'),
+('Jacqueline Harpman', 'La Dormition des amants'),
+('Jacqueline Harpman', 'La Plage d''Ostende'),
+('Jacqueline Harpman', 'Histoire de Jenny'),
+('Terry Pratchett', 'Les Petits Dieux'),
+('Terry Pratchett', 'Le Cinquième éléphant'),
+('Terry Pratchett', 'La Vérité'),
+('Terry Pratchett', 'Le Dernier héros'),
+('Terry Goodkind', 'Le Temple des vents'),
+('Jules Verne', 'De la Terre à la Lune'),
+('Jules Verne', 'Voyage au centre de la Terre'),
+('Henri-Pierre Roché', 'Jules et Jim');
+
+CREATE FULLTEXT INDEX ind_full_titre
+ON Livre (titre);
+
+CREATE FULLTEXT INDEX ind_full_aut
+ON Livre (auteur);
+
+CREATE FULLTEXT INDEX ind_full_titre_aut
+ON Livre (titre, auteur);
+
+
+###########################################################
+#                                                         #
+#  Il existe trois types de recherche FULLTEXT :          #
+#    - la recherche naturelle,                            #
+#    - la recherche avec booléen,                         #
+#    - et enfin la recherche avec extension de requête.   #
+#                                                         #
+###########################################################
+
+
+--  Recherche naturelle
+--  -------------------
+
+  --  Syntaxe:
+    SELECT *
+    FROM nom_table
+    WHERE MATCH(colonne1[, colonne2, ...])
+    AGAINST ('chaîne recherchée' IN NATURAL LANGUAGE MODE);
+  -- fin syntaxe
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(auteur)
+  AGAINST ('Terry');
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('Petite');
+
