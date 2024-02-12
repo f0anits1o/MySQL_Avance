@@ -1,4 +1,4 @@
--- Active: 1706076126421@@127.0.0.1@3306@elevage
+-- Active: 1706482698208@@127.0.0.1@3306@elevage
 create database elevage character set 'utf8';
 
 use elevage;
@@ -435,4 +435,84 @@ ON Livre (titre, auteur);
   FROM Livre
   WHERE MATCH(titre)
   AGAINST ('Petite');
+
+  
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('Petit');
+
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(auteur)
+  AGAINST ('Henri');
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(auteur, titre)
+  AGAINST ('Jules');
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre, auteur)
+  AGAINST ('Jules');
+
+  # tsy mampiova na inona na inona ny ORDER BY
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre, auteur)
+  AGAINST ('Jules Verne'); 
+
+  SELECT *, MATCH(titre, auteur) AGAINST ('Jules Verne Lune') as pertinance
+  FROM Livre;
+
+
+-- Recherche avec booléens
+-- -----------------------
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('+bonheur -ogres' IN BOOLEAN MODE);
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('"Terre à la Lune"' IN BOOLEAN MODE);
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('"Lune à la Terre"' IN BOOLEAN MODE);
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('"Terre la Lune"' IN BOOLEAN MODE);
+
+
+###################################################################################################
+#                                                                                                 # 
+# Pour spécifier un groupe de mots exigés, on utilise les doubles guillemets. Tous les mots entre #
+# doubles guillemets devront non seulement être présents mais également apparaître dans l’ordre   #
+# donné, et sans rien entre eux. Il faudra donc que l’on retrouve exactement ces mots pour avoir  #
+# un résultat.                                                                                    #
+#                                                                                                 #
+###################################################################################################
+
+
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre)
+  AGAINST ('petit*' IN BOOLEAN MODE);
+
+
+-- Recherche sur titre et auteur, de tous les mots commençant par ”d”
+-- -----------------------------------------------------------------
+  
+  SELECT *
+  FROM Livre
+  WHERE MATCH(titre, auteur)
+  AGAINST ('d*' IN BOOLEAN MODE);  
 
