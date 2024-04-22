@@ -1,4 +1,4 @@
--- Active: 1706076126421@@127.0.0.1@3306@mysqladminpdf
+-- Active: 1708539147792@@127.0.0.1@3306@elevage
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -83,9 +83,9 @@ select * from animal where espece <> 'chat';
 -- <> ~ != ~ different
 
 -- operateur AND: and ~ &&
-select * from animal where espece = "chat" and sexe='F';
-
 select * from animal where espece = 'chat' && sexe = 'F';
+
+select nom from animal WHERE espece = 'chat';
 
 -- operateur or: or ~ ||
 select * from animal where espece = 'peroquet'
@@ -378,10 +378,8 @@ FROM Livre
 WHERE MATCH(auteur)
 AGAINST ('Terry');
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('Petite');
+ 
+ 
 
 SELECT *
 FROM Livre
