@@ -1,9 +1,9 @@
--- Active: 1706482698208@@127.0.0.1@3306@elevage
-create database elevage character set 'utf8';
+-- Active: 1713698041328@@127.0.0.1@3306@elevage
+CREATE DATABASE elevage CHARACTER SET 'utf8';
 
-use elevage;
+USE elevage;
 
-create table animal (
+CREATE TABLE animal (
   id smallint unsigned not null auto_increment,
   espece varchar(40) not null,
   sex char(1),
@@ -14,9 +14,9 @@ create table animal (
 )
 engine = innodb;
 
-show tables;
+SHOW TABLES;
 
-desc animal;
+DESC animal;
 
 DESCRIBE animal;
 
@@ -515,4 +515,9 @@ ON Livre (titre, auteur);
   FROM Livre
   WHERE MATCH(titre, auteur)
   AGAINST ('d*' IN BOOLEAN MODE);  
+
+create table stateArea(
+  state varchar(20) not null,
+  area int not null
+) engine = csv;
 
