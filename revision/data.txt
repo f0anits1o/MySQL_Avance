@@ -1,0 +1,4 @@
+101	Vibhor	1999-08-05	"Maths CS"
+102	Ankit	1998-07-06	"Maths PE"
+103	Pooja	1999-08-04	"Bio CS"
+104	Shruti	1997-08-06	"Bio PE"
