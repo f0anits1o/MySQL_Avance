@@ -1,4 +1,4 @@
--- Active: 1713782639576@@127.0.0.1@3306@fiompina
+-- Active: 1714130184748@@127.0.0.1@3306@fiompina
 USE Fiompina;
 
 # Dictionaire de Donnee aza adino fa tsy ao antin ity boky ity 
@@ -1713,6 +1713,8 @@ USE Fiompina;
 
                     # mysql> set global local_infile=1; -- 1 ~ activer , 0 ~ desactiver
 
+                    set global local_infile=1
+                    
                     # Query OK, 0 rows affected (0.07 sec)
 
 
@@ -1749,6 +1751,23 @@ USE Fiompina;
 
                     SELECT * FROM LoadCsvExa;
 
+
+                    CREATE TABLE EX6CSV(
+                    one DECIMAL(15,13),
+                    two DECIMAL(15,13),
+                    three DECIMAL(15,13),
+                    four DECIMAL(15,13),
+                    cle VARCHAR(1));
+
+                    # Insertion des donnee de 1000 lignes et 5 colonnes.
+
+                    LOAD DATA LOCAL infile "C:/Users/PERSONNE/Desktop/informatique/Python Data Analysis/data/pydata-book-3rd-edition/examples/ex6.csv"   
+                    INTO TABLE ex6csv FIELDS TERMINATED BY "," 
+                    OPTIONALLY ENCLOSED BY '"' 
+                    LINES TERMINATED BY '\n' # nesorina ny r satria tsy mandeha ny insertion raha misy an iny
+                    IGNORE 1 LINES;
+
+                    SELECT * FROM ex6csv limit 1000;
 
 
                     # Syntaxe
