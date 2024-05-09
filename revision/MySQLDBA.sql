@@ -1,4 +1,4 @@
-            -- Active: 1714359672949@@127.0.0.1@3306@fiompina
+-- Active: 1714556430318@@127.0.0.1@3306@fiompina
             USE Fiompina;
 
             # Dictionaire de Donnee aza adino fa tsy ao antin ity boky ity 
@@ -312,7 +312,7 @@
 
                                 CREATE TABLE OHATRA(
                                     marika INT(4) ZEROFILL NOT NULL
-                                )
+                                );
 
                                 INSERT INTO Ohatra VALUES (4), (50), (157), (3816);
 
@@ -2874,287 +2874,683 @@
 
 
 
--- Deuxieme partie
--- Index, jointures et sous-requetes
-
--- INDEX
-
-SET NAMES utf8;
-
---  les tables de test ne sont pas reprises
-
-DROP TABLE IF EXISTS Animal;
-CREATE TABLE Animal (
-id smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
-espece varchar(40) NOT NULL,
-sexe char(1) DEFAULT NULL,
-date_naissance datetime NOT NULL,
-nom varchar(30) DEFAULT NULL,
-commentaires text,
-PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
-LOCK TABLES Animal WRITE;
-INSERT INTO Animal VALUES
-(1,'chien','M','2010-04-05 13:43:00','Rox','Mordille beaucoup'),(2,'chat',NULL,'2010-03-24 02:23:00','Roucky',NULL),(3,'chat','F','2010-09-13 15:02:00','Schtroumpfette',NULL),
-(4,'tortue','F','2009-08-03 05:12:00',NULL,NULL),(5,'chat',NULL,'2010-10-03 16:44:00','Choupi','Né sans oreille gauche'),(6,'tortue','F','2009-06-13 08:17:00','Bobosse','Carapace bizarre'),
-(7,'chien','F','2008-12-06 05:18:00','Caroline',NULL),(8,'chat','M','2008-09-11 15:38:00','Bagherra',NULL),(9,'tortue',NULL,'2010-08-23 05:18:00',NULL,NULL),
-(10,'chien','M','2010-07-21 15:41:00','Bobo',NULL),(11,'chien','F','2008-02-20 15:45:00','Canaille',NULL),(12,'chien','F','2009-05-26 08:54:00','Cali',NULL),
-(13,'chien','F','2007-04-24 12:54:00','Rouquine',NULL),(14,'chien','F','2009-05-26 08:56:00','Fila',NULL),(15,'chien','F','2008-02-20 15:47:00','Anya',NULL),
-(16,'chien','F','2009-05-26 08:50:00','Louya',NULL),(17,'chien','F','2008-03-10 13:45:00','Welva',NULL),(18,'chien','F','2007-04-24 12:59:00','Zira',NULL),
-(19,'chien','F','2009-05-26 09:02:00','Java',NULL),(20,'chien','M','2007-04-24 12:45:00','Balou',NULL),(21,'chien','F','2008-03-10 13:43:00','Pataude',NULL),
-(22,'chien','M','2007-04-24 12:42:00','Bouli',NULL),(24,'chien','M','2007-04-12 05:23:00','Cartouche',NULL),(25,'chien','M','2006-05-14 15:50:00','Zambo',NULL),
-(26,'chien','M','2006-05-14 15:48:00','Samba',NULL),(27,'chien','M','2008-03-10 13:40:00','Moka',NULL),(28,'chien','M','2006-05-14 15:40:00','Pilou',NULL),
-(29,'chat','M','2009-05-14 06:30:00','Fiero',NULL),(30,'chat','M','2007-03-12 12:05:00','Zonko',NULL),(31,'chat','M','2008-02-20 15:45:00','Filou',NULL),
-(32,'chat','M','2007-03-12 12:07:00','Farceur',NULL),(33,'chat','M','2006-05-19 16:17:00','Caribou',NULL),(34,'chat','M','2008-04-20 03:22:00','Capou',NULL),
-(35,'chat','M','2006-05-19 16:56:00','Raccou','Pas de queue depuis la naissance'),(36,'chat','M','2009-05-14 06:42:00','Boucan',NULL),(37,'chat','F','2006-05-19 16:06:00','Callune',NULL),
-(38,'chat','F','2009-05-14 06:45:00','Boule',NULL),(39,'chat','F','2008-04-20 03:26:00','Zara',NULL),(40,'chat','F','2007-03-12 12:00:00','Milla',NULL),
-(41,'chat','F','2006-05-19 15:59:00','Feta',NULL),(42,'chat','F','2008-04-20 03:20:00','Bilba','Sourde de l''oreille droite à 80%'),(43,'chat','F','2007-03-12 11:54:00','Cracotte',NULL),
-(44,'chat','F','2006-05-19 16:16:00','Cawette',NULL),(45,'tortue','F','2007-04-01 18:17:00','Nikki',NULL),(46,'tortue','F','2009-03-24 08:23:00','Tortilla',NULL),
-(47,'tortue','F','2009-03-26 01:24:00','Scroupy',NULL),(48,'tortue','F','2006-03-15 14:56:00','Lulla',NULL),(49,'tortue','F','2008-03-15 12:02:00','Dana',NULL),
-(50,'tortue','F','2009-05-25 19:57:00','Cheli',NULL),(51,'tortue','F','2007-04-01 03:54:00','Chicaca',NULL),(52,'tortue','F','2006-03-15 14:26:00','Redbul','Insomniaque'),
-(53,'tortue','M','2007-04-02 01:45:00','Spoutnik',NULL),(54,'tortue','M','2008-03-16 08:20:00','Bubulle',NULL),(55,'tortue','M','2008-03-15 18:45:00','Relou','Surpoids'),
-(56,'tortue','M','2009-05-25 18:54:00','Bulbizard',NULL),(57,'perroquet','M','2007-03-04 19:36:00','Safran',NULL),(58,'perroquet','M','2008-02-20 02:50:00','Gingko',NULL),
-(59,'perroquet','M','2009-03-26 08:28:00','Bavard',NULL),(60,'perroquet','F','2009-03-26 07:55:00','Parlotte',NULL);
-
-UNLOCK TABLES;
-
--- Type INDEX
--- Unique, fulltext and spatial
--- (mila manao recherche momba anio index spatial io)
--- index Fulltext => MyIsam ihany afaka mampiasa azy (varchar, char and text)
-
--- CREATION INDEX
-CREATE TABLE Animal2 (
-id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-espece VARCHAR(40) NOT NULL,
-sexe CHAR(1),
-date_naissance DATETIME NOT NULL,
-nom VARCHAR(30),
-commentaires TEXT,
-PRIMARY KEY (id),
-INDEX ind_date_naissance (date_naissance), -- index sur la date de naissance
-INDEX ind_nom (nom(10)) -- index sur le nom (le chiffre entre parenthèses étant le nombre de caractères pris en compte)
-)
-ENGINE=INNODB;
-
-CREATE TABLE Animal3 (
-id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-espece VARCHAR(40) NOT NULL,
-sexe CHAR(1),
-date_naissance DATETIME NOT NULL,
-nom VARCHAR(30),
-commentaires TEXT,
-PRIMARY KEY (id),
-INDEX ind_date_naissance (date_naissance),
-INDEX ind_nom (nom(10)),
-UNIQUE INDEX ind_uni_nom_espece (nom, espece) -- Index sur le nom et l'espece
-)
-ENGINE=INNODB;
 
 
--- Ajout des index après création de la table
 
-ALTER TABLE test_tuto ADD COLUMN NOM VARCHAR(50) NOT NULL AFTER PRENOM;
-ALTER TABLE Test_tuto ADD INDEX ind_nom (nom);
-DESC TEST_TUTO;
-
---  Ajout avec CREATE INDEX
--- SYNTAXE
-CREATE INDEX nom_index
-ON nom_table (colonne_index [, colonne2_index ...]); -- Crée unindex simple
-
-CREATE UNIQUE INDEX nom_index
-ON nom_table (colonne_index [, colonne2_index ...]); -- Crée un index UNIQUE
-
-CREATE FULLTEXT INDEX nom_index
-ON nom_table (colonne_index [, colonne2_index ...]); -- Crée un index FULLTEXT
-
-CREATE INDEX ind_prenom ON Test_tuto (prenom);
-
--- syntaxe UNIQUE
-CREATE TABLE nom_table (
-colonne1 INT NOT NULL,
-colonne2 VARCHAR(40),
-colonne3 TEXT,
-CONSTRAINT [symbole_contrainte] UNIQUE [INDEX] ind_uni_col2
-(colonne2)
-);
-
-ALTER TABLE nom_table
-ADD CONSTRAINT [symbole_contrainte] UNIQUE ind_uni_col2 (colonne2);
-
--- Suppression d’un index
-ALTER TABLE nom_table
-DROP INDEX nom_index;
+--------------------------------------------------------------------------------------------------------------------------------------------
+-- ************************************************************************************************************************************** --
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 
-CREATE TABLE Livre (
-id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-auteur VARCHAR(50),
-titre VARCHAR(200)
-) ENGINE = MyISAM;
-INSERT INTO Livre (auteur, titre)
-VALUES ('Daniel Pennac', 'Au bonheur des ogres'),
-('Daniel Pennac', 'La Fée Carabine'),
-('Daniel Pennac', 'Comme un roman'),
-('Daniel Pennac', 'La Petite marchande de prose'),
-('Jacqueline Harpman', 'Le Bonheur est dans le crime'),
-('Jacqueline Harpman', 'La Dormition des amants'),
-('Jacqueline Harpman', 'La Plage d''Ostende'),
-('Jacqueline Harpman', 'Histoire de Jenny'),
-('Terry Pratchett', 'Les Petits Dieux'),
-('Terry Pratchett', 'Le Cinquième éléphant'),
-('Terry Pratchett', 'La Vérité'),
-('Terry Pratchett', 'Le Dernier héros'),
-('Terry Goodkind', 'Le Temple des vents'),
-('Jules Verne', 'De la Terre à la Lune'),
-('Jules Verne', 'Voyage au centre de la Terre'),
-('Henri-Pierre Roché', 'Jules et Jim');
 
-CREATE FULLTEXT INDEX ind_full_titre
-ON Livre (titre);
-CREATE FULLTEXT INDEX ind_full_aut
-ON Livre (auteur);
-CREATE FULLTEXT INDEX ind_full_titre_aut
-ON Livre (titre, auteur);
 
--- Il existe trois types de recherche FULLTEXT : 
--- la recherche naturelle, 
--- la recherche avec booléen,
--- et enfin la recherche avec extension de requête.
 
---  Recherche naturelle
--- Syntaxe
-SELECT *
-FROM nom_table
-WHERE MATCH(colonne1[, colonne2, ...])
-AGAINST ('chaîne recherchée' IN NATURAL LANGUAGE MODE);
--- fin syntaxe
 
-SELECT *
-FROM Livre
-WHERE MATCH(auteur)
-AGAINST ('Terry');
 
- 
- 
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('Petit');
+                    #########################################
+                    #                                       #
+                    #          Deuxieme partie              #
+                    #   Index, jointures et sous-requetes   #
+                    #                                       #
+                    #########################################
 
-SELECT *
-FROM Livre
-WHERE MATCH(auteur)
-AGAINST ('Henri');
+-- II.1. Index
+-- II.2. Cles primaires et etrangeres
+-- II.3. Jointures
+-- II.4. Sous-requetes
+-- II.5. Jointures et sous-requetes: modifications de donnees
+-- II.6. Union de plusieurs requetes
+-- II.7. Option des cles etrangeres
+-- II.8. Violation de contrainte d'unicite
 
-SELECT *
-FROM Livre
-WHERE MATCH(auteur, titre)
-AGAINST ('Jules');
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre, auteur)
-AGAINST ('Jules');
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre, auteur)
-AGAINST ('Jules Verne');
 
-SELECT *, MATCH(titre, auteur) AGAINST ('Jules Verne Lune') as pertinance
-FROM Livre;
 
---  Recherche avec booléens
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('+bonheur -ogres' IN BOOLEAN MODE);
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('"Terre à la Lune"' IN BOOLEAN MODE);
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('"Lune à la Terre"' IN BOOLEAN MODE);
+-- II.3. Jointures
+-- ---------------
+    -- II.3.1. Principe des jointures et notion d'alias
+    -- II.3.2. Jointure interne
+    -- II.3.3. Jointure externe
+    -- II.3.4. Syntaxe Alternatives
+    -- II.3.5. Examples d'application et exercices
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('"Terre la Lune"' IN BOOLEAN MODE);
 
--- Pour spécifier un groupe de mots exigés, on utilise les doubles guillemets. Tous les mots entre
--- doubles guillemets devront non seulement être présents mais également apparaître dans l’ordre
--- donné, et sans rien entre eux. Il faudra donc que l’on retrouve exactement ces mots pour avoir
--- un résultat.
+    -- II.3.1. Principe des jointures et notion d'alias
+    -- ------------------------------------------------
+        -- II.3.1.1. Principe des jointures
+        -- II.3.1.2. Notion d'alias
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('petit*' IN BOOLEAN MODE);
 
--- recherche sur titre et auteur, de tous les mots commençant par ”d”
-SELECT *
-FROM Livre
-WHERE MATCH(titre, auteur)
-AGAINST ('d*' IN BOOLEAN MODE);
+    -- II.3.2. Jointure interne
+    -- ------------------------
+        -- II.3.2.1. Syntaxe
+        -- II.3.2.2. Pourquoi "interne"
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre)
-AGAINST ('+petit* -prose' IN BOOLEAN MODE); -- mix d'un astérisque avec les + et -
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre, auteur)
-AGAINST ('Daniel');
+    -- II.3.3. Jointure externe
+    -- ------------------------
+        -- II.3.3.1. Jointure a gauche
+        -- II.3.3.2. Jointure a droite
 
-SELECT *
-FROM Livre
-WHERE MATCH(titre, auteur)
-AGAINST ('Daniel' WITH QUERY EXPANSION);
 
--- cle primaire et etrangere
-CREATE TABLE Espece (
-id SMALLINT UNSIGNED AUTO_INCREMENT,
-nom_courant VARCHAR(40) NOT NULL,
-nom_latin VARCHAR(40) NOT NULL UNIQUE,
-description TEXT,
-PRIMARY KEY(id)
-)
-ENGINE=InnoDB;
+    -- II.3.4. Syntaxe Alternatives
+    -- ----------------------------
+        -- II.3.4.1. Jointure avec USING
+        -- II.3.4.2. Jointure naturelles
+        -- II.3.4.3. Jointure sans JOIN
 
-INSERT INTO Espece (nom_courant, nom_latin, description) VALUES
-('Chien', 'Canis canis', 'Bestiole à quatre pattes qui aime les caresses et tire souvent la langue'),
-('Chat', 'Felis silvestris', 'Bestiole à quatre pattes qui saute très haut et grimpe aux arbres'),
-('Tortue d''Hermann', 'Testudo hermanni', 'Bestiole avec une carapace très dure'),
-('Perroquet amazone', 'Alipiopsitta xanthops', 'Joli oiseau parleur vert et jaune');
 
-alter table Animal add column espece_id smallint unsigned;
+    -- II.3.5. Examples d'application et exercices
+    -- -------------------------------------------
+        -- II.3.5.1. A/ Commencons par des choses faciles
+        -- II.3.5.2. B/ Compliquons un peu plus les choses
+        -- II.3.5.3. C/ Et maintenant, le test ultime
+        -- II.3.5.4. En resume
 
-update animal set espece_id = 1 where espece = 'chien';
-update animal set espece_id = 2 where espece = 'chat';
-update animal set espece_id = 3 where espece = 'tortue';
-update animal set espece_id = 4 where espece = 'perroquet';
 
-alter table animal drop column espece;
+-- II.4. Sous-requetes
+-- -------------------
+    -- II.4.1. Sous-requetes dans le FROM
+        -- II.4.1.1. Les regles a respecter
 
-alter table animal add constraint fk_espece_id foreign key (espece_id) references espece(id);
+    -- II.4.2. Sous-requetes dans les conditions
+        -- II.4.2.1. Comparaisons
+        -- II.4.2.2. Conditions avec IN et NOT IN
+        -- II.4.2.3. Conditions avec ANY, SOME et ALL
+
+    -- II.4.3. Sous-requetes correlees
+        -- II.4.3.1. En resume
+
+
+-- II.5. Jointures et sous-requetes: modifications de donnees
+-- ----------------------------------------------------------
+    -- II.5.1. Insertion
+        -- II.5.1. Sous-requete pour l'insertion
+
+    -- II.5.2. Modification
+        -- II.5.2.1. Utilisation des sous-requetes
+        -- II.5.2.2. Modification avec jointure
+
+    -- II.5.3. Suppression
+        -- II.5.2.1. Utilisation des sous-requetes
+        -- II.5.2.2. Suppression avec jointure
+        -- II.5.2.3. En resume
+
+
+-- II.6. Union de plusieurs requetes
+-- ---------------------------------
+    -- II.6.1. Syntaxe
+    -- II.6.2. UNION ALL
+    -- II.6.3. LIMIT et ORDER BY
+
+
+    -- II.6.1. Syntaxe
+    -- ---------------
+        -- II.6.1.1. Sous-requete pour l'insertion
+
+
+    -- II.6.2. UNION ALL
+    -- -----------------
+
+
+    -- II.6.3. LIMIT et ORDER BY
+    -- -------------------------
+        -- II.6.2.1. LIMIT
+        -- II.6.2.2. ORDER BY
+
+
+
+-- II.7. Option des cles etrangeres
+-- --------------------------------
+    -- I.7.1. Option sur suppression des cles etrangeres
+    -- I.7.2. Option sur modification des cles etrangeres
+    -- I.7.3. Utilisation de ces options dans notre base
+
+
+    -- I.7.1. Option sur suppression des cles etrangeres
+    -- -------------------------------------------------
+        -- II.7.1.1. Petit rappels
+        -- II.7.1.2. Suppression d'une reference
+
+
+    -- I.7.2. Option sur modification des cles etrangeres
+    -- --------------------------------------------------
+
+
+    -- I.7.3. Utilisation de ces options dans notre base
+    -- -------------------------------------------------
+        -- II.7.3.1. Modifications
+        -- II.7.3.2. Suppressions
+        -- II.7.3.3. Les requetes
+        -- II.7.3.4. En resumee
+
+
+-- II.8. Violation de contrainte d'unicite
+-- ---------------------------------------
+    -- II.8.1. Ignorer les erreurs
+    -- II.8.2. Remplacer l'ancienne ligne
+    -- II.8.3. Modifier l'ancienne ligne
+
+
+    -- II.8.1. Ignorer les erreurs
+    -- ---------------------------
+        -- II.8.1.1. Insertion
+        -- II.8.1.2. Modification
+        -- II.8.1.3. LOAD DATA INFILE
+
+
+    -- II.8.2. Remplacer l'ancienne ligne
+    -- ----------------------------------
+        -- II.8.2.1. Remplacement de plusieurs lignes
+        -- II.8.2.2. LOAD DATA INFILE
+
+
+    -- II.8.3. Modifier l'ancienne ligne
+    -- ---------------------------------
+        -- II.8.3.1. Syntaxe
+        -- II.8.3.2. Attention: plusieurs contraintes d'unicites sur la meme table
+        -- II.8.3.3. En resume
+
+
+
+-- II.1. Index
+-- -----------
+    -- II.1.0.1. Etat actuelle de la base de donnees
+
+    -- II.1.1. Qu'est-ce qu'un index ?
+        -- II.1.1.1. Interet des index
+        -- II.1.1.2. Desavantages
+        -- II.1.1.3. Index sur plusieurs colonnes
+        -- II.1.1.4. Index sur des colonnes de types alphanumeriques
+
+    -- II.1.2. Les differents types des index
+        -- II.1.2.1. Index UNIQUE
+        -- II.1.2.1. Index FULLTEXT
+        
+    -- II.1.3. Creation et suppression des index
+        -- II.1.3.1. Ajout des index lors de la creation de la table
+        -- II.1.3.2. Ajout des index apres la creation de la table
+        -- II.1.3.3. Complement pour la creation d'un index UNIQUE
+        -- II.1.3.4. Suppression d'un index
+
+    -- II.1.4. Recherches avec FULLTEXT
+        -- II.1.4.1. Comment fonctionne la recherche FULLTEXT
+        -- II.1.4.2. Les types de recherche
+        -- II.1.4.3. En resume
+
+
+
+    -- II.1.0.1. Etat actuelle de la base de donnees
+    -- --------------------------------------------
+
+        SET NAMES utf8;
+
+
+        DROP TABLE IF EXISTS Animal;
+        
+        CREATE TABLE Animal (
+            id smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT,
+            espece varchar(40) NOT NULL,
+            sexe char(1) DEFAULT NULL,
+            date_naissance datetime NOT NULL,
+            nom varchar(30) DEFAULT NULL,
+            commentaires text,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
+        
+        LOCK TABLES Animal WRITE;
+        
+        INSERT INTO Animal VALUES
+        (1,'chien','M','2010-04-05 13:43:00','Rox','Mordille beaucoup'),(2,'chat',NULL,'2010-03-24 02:23:00','Roucky',NULL),(3,'chat','F','2010-09-13 15:02:00','Schtroumpfette',NULL),
+        (4,'tortue','F','2009-08-03 05:12:00',NULL,NULL),(5,'chat',NULL,'2010-10-03 16:44:00','Choupi','Né sans oreille gauche'),(6,'tortue','F','2009-06-13 08:17:00','Bobosse','Carapace bizarre'),
+        (7,'chien','F','2008-12-06 05:18:00','Caroline',NULL),(8,'chat','M','2008-09-11 15:38:00','Bagherra',NULL),(9,'tortue',NULL,'2010-08-23 05:18:00',NULL,NULL),
+        (10,'chien','M','2010-07-21 15:41:00','Bobo',NULL),(11,'chien','F','2008-02-20 15:45:00','Canaille',NULL),(12,'chien','F','2009-05-26 08:54:00','Cali',NULL),
+        (13,'chien','F','2007-04-24 12:54:00','Rouquine',NULL),(14,'chien','F','2009-05-26 08:56:00','Fila',NULL),(15,'chien','F','2008-02-20 15:47:00','Anya',NULL),
+        (16,'chien','F','2009-05-26 08:50:00','Louya',NULL),(17,'chien','F','2008-03-10 13:45:00','Welva',NULL),(18,'chien','F','2007-04-24 12:59:00','Zira',NULL),
+        (19,'chien','F','2009-05-26 09:02:00','Java',NULL),(20,'chien','M','2007-04-24 12:45:00','Balou',NULL),(21,'chien','F','2008-03-10 13:43:00','Pataude',NULL),
+        (22,'chien','M','2007-04-24 12:42:00','Bouli',NULL),(24,'chien','M','2007-04-12 05:23:00','Cartouche',NULL),(25,'chien','M','2006-05-14 15:50:00','Zambo',NULL),
+        (26,'chien','M','2006-05-14 15:48:00','Samba',NULL),(27,'chien','M','2008-03-10 13:40:00','Moka',NULL),(28,'chien','M','2006-05-14 15:40:00','Pilou',NULL),
+        (29,'chat','M','2009-05-14 06:30:00','Fiero',NULL),(30,'chat','M','2007-03-12 12:05:00','Zonko',NULL),(31,'chat','M','2008-02-20 15:45:00','Filou',NULL),
+        (32,'chat','M','2007-03-12 12:07:00','Farceur',NULL),(33,'chat','M','2006-05-19 16:17:00','Caribou',NULL),(34,'chat','M','2008-04-20 03:22:00','Capou',NULL),
+        (35,'chat','M','2006-05-19 16:56:00','Raccou','Pas de queue depuis la naissance'),(36,'chat','M','2009-05-14 06:42:00','Boucan',NULL),(37,'chat','F','2006-05-19 16:06:00','Callune',NULL),
+        (38,'chat','F','2009-05-14 06:45:00','Boule',NULL),(39,'chat','F','2008-04-20 03:26:00','Zara',NULL),(40,'chat','F','2007-03-12 12:00:00','Milla',NULL),
+        (41,'chat','F','2006-05-19 15:59:00','Feta',NULL),(42,'chat','F','2008-04-20 03:20:00','Bilba','Sourde de l''oreille droite à 80%'),(43,'chat','F','2007-03-12 11:54:00','Cracotte',NULL),
+        (44,'chat','F','2006-05-19 16:16:00','Cawette',NULL),(45,'tortue','F','2007-04-01 18:17:00','Nikki',NULL),(46,'tortue','F','2009-03-24 08:23:00','Tortilla',NULL),
+        (47,'tortue','F','2009-03-26 01:24:00','Scroupy',NULL),(48,'tortue','F','2006-03-15 14:56:00','Lulla',NULL),(49,'tortue','F','2008-03-15 12:02:00','Dana',NULL),
+        (50,'tortue','F','2009-05-25 19:57:00','Cheli',NULL),(51,'tortue','F','2007-04-01 03:54:00','Chicaca',NULL),(52,'tortue','F','2006-03-15 14:26:00','Redbul','Insomniaque'),
+        (53,'tortue','M','2007-04-02 01:45:00','Spoutnik',NULL),(54,'tortue','M','2008-03-16 08:20:00','Bubulle',NULL),(55,'tortue','M','2008-03-15 18:45:00','Relou','Surpoids'),
+        (56,'tortue','M','2009-05-25 18:54:00','Bulbizard',NULL),(57,'perroquet','M','2007-03-04 19:36:00','Safran',NULL),(58,'perroquet','M','2008-02-20 02:50:00','Gingko',NULL),
+        (59,'perroquet','M','2009-03-26 08:28:00','Bavard',NULL),(60,'perroquet','F','2009-03-26 07:55:00','Parlotte',NULL);
+        
+        UNLOCK TABLES;
+
+
+
+    -- II.1.1. Qu'est-ce qu'un index ?
+    -- ------------------------------
+        -- II.1.1.1. Interet des index
+        -- II.1.1.2. Desavantages
+        -- II.1.1.3. Index sur plusieurs colonnes
+        -- II.1.1.4. Index sur des colonnes de types alphanumeriques
+
+
+        # Revoyons la définition d’un index.
+        
+
+        # => Structure de données qui reprend la liste ordonnée des valeurs auxquelles il se rapporte.
+        
+        # Lorsque vous créez un index sur une table, MySQL stocke cet index sous forme d’une structure
+        # particulière, contenant les valeurs des colonnes impliquées dans l’index. Cette structure stocke
+        # les valeurs triées et permet d’accéder à chacune de manière efficace et rapide.
+
+        # || Pour permettre une compréhension plus facile, je représente ici l’index sous forme de table.
+        # || En réalité, par défaut, MySQL stocke les index dans une structure de type ”arbre” (l’index
+        # || est alors de type BTREE). Le principe est cependant le même.
+
+        
+        -- II.1.1.1. Interet des index
+        -- ---------------------------
+
+        # Vous devriez avoir compris maintenant que tout l’intérêt des index est d’accélérer les requêtes
+        # qui utilisent des colonnes indexées comme critères de recherche. Par conséquent, si vous savez
+        # que dans votre application, vous ferez énormément de recherches sur la colonne X, ajoutez donc
+        # un index sur cette colonne, vous ne vous en porterez que mieux.
+        
+        # Les index permettent aussi d’assurer l’intégrité des données de la base. Pour cela, il existe en fait
+        # plusieurs types d’index différents, et deux types de ”clés”. Lorsque je parle de garantir l’intégrité
+        # de vos données, cela signifie en gros garantir la qualité de vos données, vous assurer que vos
+        # données ont du sens. Par exemple, soyez sûrs que vous ne faites pas référence à un client dans la
+        # table Commande, alors qu’en réalité, ce client n’existe absolument pas dans la table Client.
+
+
+
+        -- II.1.1.2. Desavantages
+        -- ----------------------
+
+            # Si tout ce que fait un index, c’est accélérer les requêtes utilisant des critères de recherche
+            # correspondants, autant en mettre partout, et en profiter à chaque requête ! Sauf qu’évidemment,
+            # ce n’est pas si simple, les index ont deux inconvénients.
+            
+            # — Ils prennent de la place en mémoire
+            # — Ils ralentissent les requêtes d’insertion, modification et suppression, puisqu’à chaque fois,
+            #   il faut remettre l’index à jour en plus de la table.
+            
+            # Par conséquent, n’ajoutez pas d’index lorsque ce n’est pas vraiment utile.
+
+
+
+        -- II.1.1.3. Index sur plusieurs colonnes
+        -- --------------------------------------
+
+            # cas pratique io mazava
+
+
+        -- II.1.1.4. Index sur des colonnes de types alphanumeriques
+        -- ---------------------------------------------------------
+
+
+
+
+    -- II.1.2. Les differents types des index
+    -- --------------------------------------
+        -- II.1.2.1. Index UNIQUE 
+        -- II.1.2.2. Index FULLTEXT
+
+
+        #################################################################################
+        #                                                                               #
+        # Type INDEX:                                                                   #
+        #             * Unique,                                                         #
+        #             * fulltext,                                                       #
+        #             * and spatial.                                                    #
+        #                                                                               #
+        # (mila manao recherche momba anio index spatial io)                            #
+        # index Fulltext => MyIsam ihany afaka mampiasa azy (varchar, char and text)    #
+        #                                                                               #
+        #################################################################################
+
+
+
+        -- CREATION INDEX
+        -- --------------
+
+            CREATE TABLE Animal2 (
+                    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                    espece VARCHAR(40) NOT NULL,
+                    sexe CHAR(1),
+                    date_naissance DATETIME NOT NULL,
+                    nom VARCHAR(30),
+                    commentaires TEXT,
+                PRIMARY KEY (id),
+                INDEX ind_date_naissance (date_naissance), -- index sur la date de naissance
+                INDEX ind_nom (nom(10)) -- index sur le nom (le chiffre entre parenthèses étant le nombre de caractères pris en compte)
+            )
+            ENGINE=INNODB;
+        
+            CREATE TABLE Animal3 (
+                    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                    espece VARCHAR(40) NOT NULL,
+                    sexe CHAR(1),
+                    date_naissance DATETIME NOT NULL,
+                    nom VARCHAR(30),
+                    commentaires TEXT,
+                PRIMARY KEY (id),
+                INDEX ind_date_naissance (date_naissance),
+                INDEX ind_nom (nom(10)),
+                UNIQUE INDEX ind_uni_nom_espece (nom, espece) -- Index sur le nom et l'espece
+            )
+            ENGINE=INNODB;
+
+        
+            -- Ajout des index après création de la table
+        
+            DESC test_tuto;
+        
+            ALTER TABLE test_tuto ADD COLUMN fanampin_anarana VARCHAR(50) NOT NULL AFTER anarana;
+            ALTER TABLE Test_tuto ADD INDEX ind_fanampin_anarana (fanampin_anarana);
+            
+            DESC TEST_TUTO;
+        
+        
+        --  Ajout avec CREATE INDEX
+        -- -------------------------
+        
+        ######################## SYNTAXE #################################################
+        #  
+        #    CREATE 
+        #    INDEX nom_index
+        #    ON 
+        #    nom_table (colonne_index [, colonne2_index ...]); -- Crée unindex simple
+        #    
+        #    CREATE 
+        #    UNIQUE INDEX nom_index
+        #    ON 
+        #    nom_table (colonne_index [, colonne2_index ...]); -- Crée un index UNIQUE
+        #    
+        #    CREATE
+        #    FULLTEXT INDEX nom_index
+        #    ON 
+        #    nom_table (colonne_index [, colonne2_index ...]); -- Crée un index FULLTEXT
+        #
+        #
+        #
+        #
+        #   -- syntaxe UNIQUE
+        #   -- --------------
+        #   
+        #   CREATE TABLE nom_table (
+        #           colonne1 INT NOT NULL,
+        #           colonne2 VARCHAR(40),
+        #           colonne3 TEXT,
+        #       CONSTRAINT [symbole_contrainte] UNIQUE [INDEX] ind_uni_col2
+        #       (colonne2)
+        #   );
+        #   
+        #   
+        #   ALTER TABLE nom_table
+        #   ADD CONSTRAINT [symbole_contrainte] UNIQUE ind_uni_col2 (colonne2);
+        #   
+        #   -- Suppression d’un index
+        #   -- ----------------------
+        #   ALTER TABLE nom_table
+        #   DROP INDEX nom_index;
+        #
+        ######################################### Fin Syntaxe ###################################
+        
+        
+        CREATE INDEX ind_anarana ON Test_tuto (anarana);
+        
+        DESC test_tuto;
+        
+        
+        -- Insertion des donnees sur le table libre:
+        -- -----------------------------------------
+        
+        CREATE TABLE Livre (
+           id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+           auteur VARCHAR(50),
+           titre VARCHAR(200)
+        ) ENGINE = MyISAM;
+        
+        INSERT INTO Livre (auteur, titre)
+        VALUES ('Daniel Pennac', 'Au bonheur des ogres'),
+        ('Daniel Pennac', 'La Fée Carabine'),
+        ('Daniel Pennac', 'Comme un roman'),
+        ('Daniel Pennac', 'La Petite marchande de prose'),
+        ('Jacqueline Harpman', 'Le Bonheur est dans le crime'),
+        ('Jacqueline Harpman', 'La Dormition des amants'),
+        ('Jacqueline Harpman', 'La Plage d''Ostende'),
+        ('Jacqueline Harpman', 'Histoire de Jenny'),
+        ('Terry Pratchett', 'Les Petits Dieux'),
+        ('Terry Pratchett', 'Le Cinquième éléphant'),
+        ('Terry Pratchett', 'La Vérité'),
+        ('Terry Pratchett', 'Le Dernier héros'),
+        ('Terry Goodkind', 'Le Temple des vents'),
+        ('Jules Verne', 'De la Terre à la Lune'),
+        ('Jules Verne', 'Voyage au centre de la Terre'),
+        ('Henri-Pierre Roché', 'Jules et Jim');
+        
+        CREATE FULLTEXT INDEX ind_full_titre
+        ON Livre (titre);
+        
+        CREATE FULLTEXT INDEX ind_full_aut
+        ON Livre (auteur);
+        
+        CREATE FULLTEXT INDEX ind_full_titre_aut
+        ON Livre (titre, auteur);
+        
+        
+        ###########################################################
+        #                                                         #
+        #  Il existe trois types de recherche FULLTEXT :          #
+        #    - la recherche naturelle,                            #
+        #    - la recherche avec booléen,                         #
+        #    - et enfin la recherche avec extension de requête.   #
+        #                                                         #
+        ###########################################################
+        
+        
+        --  Recherche naturelle
+        --  -------------------
+        
+            #*************************SYNTAXE**************************# 
+            # SELECT *                                                 #
+            # FROM nom_table                                           #
+            # WHERE MATCH(colonne1[, colonne2, ...])                   #
+            # AGAINST ('chaîne recherchée' IN NATURAL LANGUAGE MODE);  #
+            #                                                          #
+            #***********************************************************
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(auteur)
+          AGAINST ('Terry');
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre)
+          AGAINST ('Petite');
+        
+          
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre)
+          AGAINST ('Petit');
+        
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(auteur)
+          AGAINST ('Henri');
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(auteur, titre)
+          AGAINST ('Jules');
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre, auteur)
+          AGAINST ('Jules');
+        
+          # tsy mampiova na inona na inona ny ORDER BY
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre, auteur)
+          AGAINST ('Jules Verne'); 
+        
+          SELECT *, MATCH(titre, auteur) AGAINST ('Jules Verne Lune') as pertinance
+          FROM Livre;
+        
+        
+        -- Recherche avec booléens
+        -- -----------------------
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre)
+          AGAINST ('+bonheur -ogres' IN BOOLEAN MODE);
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre)
+          AGAINST ('"Terre à la Lune"' IN BOOLEAN MODE);
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre)
+          AGAINST ('"Lune à la Terre"' IN BOOLEAN MODE);
+        
+          SELECT *
+          FROM Livre
+          WHERE MATCH(titre)
+          AGAINST ('"Terre la Lune"' IN BOOLEAN MODE);
+        
+        
+        ###################################################################################################
+        #                                                                                                 # 
+        # Pour spécifier un groupe de mots exigés, on utilise les doubles guillemets. Tous les mots entre #
+        # doubles guillemets devront non seulement être présents mais également apparaître dans l’ordre   #
+        # donné, et sans rien entre eux. Il faudra donc que l’on retrouve exactement ces mots pour avoir  #
+        # un résultat.                                                                                    #
+        #                                                                                                 #
+        ###################################################################################################
+        
+        
+            SELECT *
+            FROM Livre
+            WHERE MATCH(titre)
+            AGAINST ('petit*' IN BOOLEAN MODE);
+
+
+            SELECT *
+            FROM Livre
+            WHERE MATCH(titre, auteur)
+            AGAINST ('d*' IN BOOLEAN MODE);
+            -- recherche sur titre et auteur, de tous les mots commençant par ”d”
+            
+            SELECT *
+            FROM Livre
+            WHERE MATCH(titre)
+            AGAINST ('+petit* -prose' IN BOOLEAN MODE);
+            -- mix d'un astérisque avec les + et -
+            
+            SELECT *
+            FROM Livre
+            WHERE MATCH(titre, auteur)
+            AGAINST ('Daniel');
+            
+            SELECT *
+            FROM Livre
+            WHERE MATCH(titre, auteur)
+            AGAINST ('Daniel' WITH QUERY EXPANSION);
+
+
+-- II.2. Cles primaires et etrangeres
+-- ----------------------------------
+    -- II.2.1. Cles primaires, le retour
+    -- II.2.2. Cles etrangers,
+    -- II.2.3. Modification de notre base
+
+
+    -- II.2.1. Cles primaires, le retour
+    -- ---------------------------------
+        -- II.2.1.1. Choix de la cle primaire
+        -- II.2.1.2. Creation d'une cle primaire
+        -- II.2.1.3. Suppression de la cle primaire
+
+
+    -- II.2.2. Cles etrangers
+    -- ----------------------
+        -- II.2.2.1. Creation
+        -- II.2.2.2. Suppression d'une cle etrangere
+
+
+    -- II.2.3. Modification de notre base
+    -- ----------------------------------
+        -- II.2.3.1. La table Espece
+        -- II.2.3.2. la table Animal 
+        -- II.2.3.3. En resume
+
+
+
+        -- Table espece
+        -- ------------
+        
+        CREATE TABLE Espece (
+        id SMALLINT UNSIGNED AUTO_INCREMENT,
+        nom_courant VARCHAR(40) NOT NULL,
+        nom_latin VARCHAR(40) NOT NULL UNIQUE,
+        description TEXT,
+        PRIMARY KEY(id)
+        )
+        ENGINE=InnoDB;
+        
+        INSERT INTO Espece (nom_courant, nom_latin, description) VALUES
+        ('Chien', 'Canis canis', 'Bestiole à quatre pattes qui aime les caresses et tire souvent la langue'),
+        ('Chat', 'Felis silvestris', 'Bestiole à quatre pattes qui saute très haut et grimpe aux arbres'),
+        ('Tortue d''Hermann', 'Testudo hermanni', 'Bestiole avec une carapace très dure'),
+        ('Perroquet amazone', 'Alipiopsitta xanthops', 'Joli oiseau parleur vert et jaune');
+        
+        ALTER table Animal add column espece_id smallint unsigned;
+        
+        UPADATE animal SET espece_id = 1 WHERE espece = 'chien';
+        UPADATE animal SET espece_id = 2 WHERE espece = 'chat';
+        UPADATE animal SET espece_id = 3 WHERE espece = 'tortue';
+        UPADATE animal SET espece_id = 4 WHERE espece = 'perroquet';
+
+        ALTER table animal DROP column espece;
+        
+        ALTER table animal add constraint fk_espece_id foreign key (espece_id) references espece(id);
+
 
 -- test Puissance foreign key ary ny moteur Innodb
-INSERT INTO Animal (nom, espece_id, date_naissance) VALUES ('Caouette', 5, '2009-02-15 12:45:00');
+-- -----------------------------------------------
+
+INSERT INTO Animal 
+(nom, espece_id, date_naissance) 
+VALUES 
+('Caouette', 5, '2009-02-15 12:45:00');
 
 desc espece;
 
-ALTER TABLE Animal MODIFY espece_id SMALLINT UNSIGNED NOT NULL;
+ALTER TABLE Animal
+MODIFY 
+espece_id SMALLINT UNSIGNED NOT NULL;
 
-CREATE UNIQUE INDEX ind_uni_nom_espece_id ON Animal (nom,
-espece_id);
+CREATE UNIQUE INDEX
+ind_uni_nom_espece_id ON Animal 
+(nom,espece_id);
+
+
+
+-- --------------------------
+-- CREATION DE LA TABLE Race3 
+-- --------------------------
 
 
 CREATE TABLE Race (
