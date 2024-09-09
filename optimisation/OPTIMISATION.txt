@@ -1,0 +1,5 @@
+OPTIMISATION:
+RECHERCHE: 
+* MOTEUR MyIsam, tsy mampiasa primary key sy foreign fa mampiasa index full text;
+ecriture code: clause jointure mampiasa using
+* sous requette ( + info pages 166 administrer votre base de donnee avec mysql);

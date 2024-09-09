@@ -1,4 +1,4 @@
--- Active: 1708539147792@@127.0.0.1@3306@elevage
+-- Active: 1714359672949@@127.0.0.1@3306@elevage
 create database mysqladminpdf;
 
 use mysqladminpdf;
@@ -59,7 +59,7 @@ select * from animal;
 
 --  Insertion en précisant les colonnes
 
-alter table animal change sex sexe char(1);
+ALTER TABLE animal CHANGE sex sexe CHAR(1);
 INSERT INTO Animal (espece, sexe, date_naissance)
 VALUES ('tortue', 'F', '2009-08-03 05:12:00');
 INSERT INTO Animal (nom, commentaires, date_naissance, espece)
@@ -216,8 +216,8 @@ delete from animal where nom = 'Zoulou';
 
 update animal set sexe='F', nom='Pataude' where id=21;
 
- -- Deuxieme partie
- -- Index, jointures et sous-requetes
+-- Deuxieme partie
+-- Index, jointures et sous-requetes
 
 -- INDEX
 

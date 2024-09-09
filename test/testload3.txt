@@ -1,0 +1,3 @@
+LOAD DATA LOCAL INFILE 'C:\bd\pet.txt' INTO TABLE pet LINES TERMINATED BY '\r\n';
+
+"C:\db\pet.txt"

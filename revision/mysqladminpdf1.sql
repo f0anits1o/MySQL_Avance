@@ -26,7 +26,7 @@ DESCRIBE animal;
 -- Modification d'une table avec ALTER
 -- -------------------------------------
 
-create table test_tuto(
+CREATE TABLE test_tuto(
   id int not null,
   nom varchar(10) not null,
   primary key(id)
@@ -34,20 +34,20 @@ create table test_tuto(
 
 
     -- Alter ajout des colonnes (after et first)
-        alter table test_tuto add column date_insertion date not null after id;
+        ALTER TABLE test_tuto ADD COLUMN date_insertion DATE NOT NULL NULL id;
 
         # Verrification
-        desc test_tuto;
+        DESC test_tuto;
 
-        alter table test_tuto add type boolean first;
+        ALTER TABLE test_tuto ADD TYPE BOOLEAN FIRST;
 
 
     -- Alter modifier le propriete d'un attribut
-        alter table test_tuto modify type boolean default 0;
+        ALTER TABLE test_tuto MODIFY TYPE BOOLEAN DEFAULT 0;
 
 
     -- Alter: changer le nom d'un attribut
-        alter table test_tuto change nom anarana varchar(40) not null; # aza adino ny type an'ilay attribut 
+        alter table test_tuto change nom anarana VARCHAR(40) NOT NULL; # aza adino ny type an'ilay attribut 
 
     -- Insertion de donnee de donnee (page 73)
     -- Insertion sans preciser les colonnes
@@ -204,7 +204,7 @@ create table test_tuto(
     select * from animal
     where id like "1%";
 
-    select count(*) from animal where id like '1%';  
+    select count(*) AS TOTAL from animal where id like '1%';  
 
   -- Recherche dans un intervalle
     select * from animal

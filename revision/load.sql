@@ -29,4 +29,4 @@ OPTIONALLY ENCLOSED BY '"'
 LINES TERMINATED BY '\n' 
 IGNORE 1 LINES;
 
-select * FROM ex6csv;
+select * FROM ex6csv limit 1000;

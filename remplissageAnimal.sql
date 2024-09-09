@@ -1,5 +1,5 @@
-INSERT INTO Animal (espece, sexe, date_naissance, nom,
-commentaires) VALUES
+-- Active: 1705125710000@@127.0.0.1@3306@mysqladminpdf
+INSERT INTO Animal (espece, sexe, date_naissance, nom, commentaires) VALUES
 ('chien', 'F', '2008-02-20 15:45:00' , 'Canaille', NULL),
 ('chien', 'F','2009-05-26 08:54:00' , 'Cali', NULL),
 ('chien', 'F','2007-04-24 12:54:00' , 'Rouquine', NULL),
@@ -24,5 +24,6 @@ commentaires) VALUES
 ('chat', 'M','2007-03-12 12:07:00' , 'Farceur', NULL),
 ('chat', 'M','2006-05-19 16:17:00' ,'Caribou' , NULL),
 ('chat', 'M','2008-04-20 03:22:00' , 'Capou', NULL),
-('chat', 'M','2006-05-19 16:56:00' , 'Raccou',
-'Pas de queue depuis la naissance');
+('chat', 'M','2006-05-19 16:56:00' , 'Raccou','Pas de queue depuis la naissance');
+
+SELECT @essai;

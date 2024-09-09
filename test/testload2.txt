@@ -1,0 +1,9 @@
+Load data local infile 'path'
+
+into table table's_name 
+
+fields terminated by ';'
+
+lines terminated by '\r\n'
+
+ignore 1 lines;

@@ -1,0 +1,14 @@
+Table de matieres
+1. MySQL et les bases du langage SQL
+
+2. Index, jointures et sous-requetes
+
+3. Fonctions: nombres, chaines et agregats
+
+4. Fonctions: manipuler les dates
+
+5. Securiser et automatiser ses actions
+
+6. Au-dela des tables classiques: vues, table temporaires et vues materialisees
+
+7- Gestion des utilisateurs et configuration du serveur
